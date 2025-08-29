@@ -21,7 +21,7 @@ _G.noclip = false
 local passwordAccepted = false
 local PASSWORD = "95741"
 
--- GUI principale (toujours créée mais invisible au départ)
+-- GUI principale
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "ShadowHub"
 
@@ -32,7 +32,7 @@ frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
 frame.BorderSizePixel = 0
 frame.Active = true
 frame.Draggable = true
-frame.Visible = false -- invisible jusqu'au mot de passe correct
+frame.Visible = false -- invisible jusqu'au mot de passe
 
 -- Header
 local header = Instance.new("Frame", frame)
@@ -97,11 +97,12 @@ for i=1,5 do
 end
 loadingFrame:Destroy()
 
--- Mot de passe intégré
+-- Frame mot de passe
 local passwordFrame = Instance.new("Frame", frame)
 passwordFrame.Size = UDim2.new(1,0,1,0)
 passwordFrame.Position = UDim2.new(0,0,0,0)
 passwordFrame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+passwordFrame.ZIndex = 10
 
 local passLabel = Instance.new("TextLabel", passwordFrame)
 passLabel.Size = UDim2.new(1,-20,0,50)
@@ -133,7 +134,7 @@ submitBtn.MouseButton1Click:Connect(function()
     if passBox.Text == PASSWORD then
         passwordAccepted = true
         passwordFrame:Destroy()
-        frame.Visible = true
+        frame.Visible = true -- Affiche le frame principal
     else
         passBox.Text = ""
         passLabel.Text = "Mot de passe incorrect"
@@ -239,7 +240,7 @@ createButton("Vol","flyEnabled",function(state)
             end
             local moveDir = humanoid.MoveDirection
             bg.CFrame = CFrame.new(hrp.Position, hrp.Position + camera.CFrame.LookVector)
-            local up = uis:IsKeyDown(Enum.KeyCode.Space) and 50 or -50
+            local up = uis:IsKeyDown(Enum.KeyCode.Space) and 50 or 0
             bv.Velocity = moveDir * 50 + Vector3.new(0,up,0)
         end)
     else
