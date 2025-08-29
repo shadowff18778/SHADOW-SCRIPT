@@ -1,5 +1,3 @@
--- SHADOW HUB [SUPPORT ALL EXECUTOR]
-
 game.StarterGui:SetCore("SendNotification", {
     Title = "SHADOW HUB",
     Text = "Chargement du mod... Prépare-toi à dominer 😈",
@@ -14,10 +12,10 @@ local uis = game:GetService("UserInputService")
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "ShadowHub"
 
--- Fenêtre principale
+-- Fenêtre principale (ajustée)
 local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0, 320, 0, 360)
-frame.Position = UDim2.new(0.5, -160, 0.5, -180)
+frame.Size = UDim2.new(0, 320, 0, 250)
+frame.Position = UDim2.new(0.5, -160, 0.5, -125)
 frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 frame.BorderSizePixel = 0
 frame.Active = true
@@ -134,14 +132,15 @@ infoText.Text = string.format("👤 Nom : %s\n🆔 UserId : %d\n💎 Premium : %
     tostring(player.MembershipType == Enum.MembershipType.Premium),
     tostring(player.AccountAge)
 )
--- Initialisation des variables globales
+
+-- Variables globales
 _G.flyEnabled = false
 _G.speedEnabled = false
 _G.jumpEnabled = false
 _G.noclip = false
 
 local buttonY = 0.1
-local spacing = 0.15
+local spacing = 0.2
 
 local function createButton(name, toggleVar, callback)
     local btn = Instance.new("TextButton", mainPage)
@@ -162,12 +161,15 @@ local function createButton(name, toggleVar, callback)
     buttonY = buttonY + spacing
 end
 
--- 🔥 VOL avec support mobile
+-- 🔥 VOL style Minecraft créatif
 createButton("Vol", "flyEnabled", function(state)
     local hrp = character:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if not hrp or not humanoid then return end
 
     if state then
+        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+
         local bv = Instance.new("BodyVelocity")
         bv.Name = "FlyVelocity"
         bv.MaxForce = Vector3.new(1e5, 1e5, 1e5)
@@ -177,81 +179,42 @@ createButton("Vol", "flyEnabled", function(state)
         local bg = Instance.new("BodyGyro")
         bg.Name = "FlyGyro"
         bg.MaxTorque = Vector3.new(1e5, 1e5, 1e5)
-        bg.CFrame = camera.CFrame
+        bg.P = 1e4
+        bg.CFrame = hrp.CFrame
         bg.Parent = hrp
 
-        local moveDirection = Vector3.zero
-
-        local function updateMovement()
-            local move = Vector3.zero
-            move += uis:IsKeyDown(Enum.KeyCode.Space) and Vector3.new(0, 1, 0) or Vector3.zero
-            move -= uis:IsKeyDown(Enum.KeyCode.LeftControl) and Vector3.new(0, 1, 0) or Vector3.zero
-            move += uis:IsKeyDown(Enum.KeyCode.W) and camera.CFrame.LookVector or Vector3.zero
-            move -= uis:IsKeyDown(Enum.KeyCode.S) and camera.CFrame.LookVector or Vector3.zero
-            move += uis:IsKeyDown(Enum.KeyCode.A) and -camera.CFrame.RightVector or Vector3.zero
-            move += uis:IsKeyDown(Enum.KeyCode.D) and camera.CFrame.RightVector or Vector3.zero
-            moveDirection = move
-        end
-
-        local connInput = uis.InputBegan:Connect(updateMovement)
-        local connEnd = uis.InputEnded:Connect(updateMovement)
-
-        local conn = game:GetService("RunService").Heartbeat:Connect(function()
+        local conn
+        conn = game:GetService("RunService").Heartbeat:Connect(function()
             if not _G.flyEnabled then
                 conn:Disconnect()
-                connInput:Disconnect()
-                connEnd:Disconnect()
                 bv:Destroy()
                 bg:Destroy()
+                humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
                 return
             end
 
-            bg.CFrame = camera.CFrame
-            bv.Velocity = moveDirection.Magnitude > 0 and moveDirection.Unit * 50 or Vector3.zero
-        end)
+            local moveDir = humanoid.MoveDirection
+            local camCF = camera.CFrame
 
-        -- 📱 Boutons tactiles pour mobile
-        local upBtn = Instance.new("TextButton", gui)
-        upBtn.Size = UDim2.new(0, 60, 0, 60)
-        upBtn.Position = UDim2.new(1, -70, 0.5, -70)
-        upBtn.Text = "⬆️"
-        upBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-        upBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        upBtn.Font = Enum.Font.GothamBold
-        upBtn.TextSize = 24
-        upBtn.Visible = true
+            -- perso suit la caméra
+            bg.CFrame = CFrame.new(hrp.Position, hrp.Position + camCF.LookVector)
 
-        local downBtn = Instance.new("TextButton", gui)
-        downBtn.Size = UDim2.new(0, 60, 0, 60)
-        downBtn.Position = UDim2.new(1, -70, 0.5, 10)
-        downBtn.Text = "⬇️"
-        downBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-        downBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        downBtn.Font = Enum.Font.GothamBold
-        downBtn.TextSize = 24
-        downBtn.Visible = true
+            if moveDir.Magnitude > 0 then
+                local forward = camCF.LookVector
+                local right = camCF.RightVector
+                local move = (forward * moveDir.Z + right * moveDir.X).Unit
 
-        upBtn.MouseButton1Down:Connect(function()
-            moveDirection += Vector3.new(0, 1, 0)
-        end)
-        downBtn.MouseButton1Down:Connect(function()
-            moveDirection -= Vector3.new(0, 1, 0)
-        end)
-
-        -- Nettoyage des boutons quand vol désactivé
-        table.insert(_G.cleanupFlyUI or {}, function()
-            upBtn:Destroy()
-            downBtn:Destroy()
+                bv.Velocity = move * 60
+            else
+                bv.Velocity = Vector3.zero
+            end
         end)
     else
         local oldBV = hrp:FindFirstChild("FlyVelocity")
-        local oldBG = hrp:FindFirstChild("FlyGyro")
         if oldBV then oldBV:Destroy() end
+        local oldBG = hrp:FindFirstChild("FlyGyro")
         if oldBG then oldBG:Destroy() end
-        if _G.cleanupFlyUI then
-            for _, f in pairs(_G.cleanupFlyUI) do f() end
-            _G.cleanupFlyUI = {}
-        end
+        humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
     end
 end)
 
@@ -278,7 +241,7 @@ createButton("Noclip", "noclip", function(state)
     end)
 end)
 
--- 🌈 Animation rouge ↔ bleu (header + bouton SHADOW)
+-- 🌈 Animation rouge ↔ bleu
 local function animateColor(textLabel)
     spawn(function()
         while true do
