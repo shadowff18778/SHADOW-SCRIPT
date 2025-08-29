@@ -10,6 +10,16 @@ local hrp = character:WaitForChild("HumanoidRootPart")
 local humanoid = character:WaitForChild("Humanoid")
 local camera = workspace.CurrentCamera
 local runService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+
+-- Variables globales
+_G.flyEnabled = false
+_G.speedEnabled = false
+_G.jumpEnabled = false
+_G.noclip = false
+_G.invisibleEnabled = false
+local buttonY = 0.1
+local spacing = 0.2
 
 -- GUI principale
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
@@ -22,50 +32,55 @@ frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 frame.BorderSizePixel = 0
 frame.Active = true
 frame.Draggable = true
-frame.BackgroundTransparency = 1
-for i = 1, 10 do
-    frame.BackgroundTransparency = 1 - (i * 0.1)
-    wait(0.05)
-end
+frame.BackgroundTransparency = 0.2
 
--- Header et boutons
+-- ScrollingFrame pour défilement
+local scrollFrame = Instance.new("ScrollingFrame", frame)
+scrollFrame.Size = UDim2.new(1, 0, 1, -40)
+scrollFrame.Position = UDim2.new(0,0,0,40)
+scrollFrame.CanvasSize = UDim2.new(0,0,0,0)
+scrollFrame.ScrollBarThickness = 8
+scrollFrame.BackgroundTransparency = 1
+
+-- Header
 local header = Instance.new("Frame", frame)
-header.Size = UDim2.new(1, 0, 0, 40)
-header.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+header.Size = UDim2.new(1,0,0,40)
+header.BackgroundColor3 = Color3.fromRGB(0,0,0)
 
 local title = Instance.new("TextLabel", header)
 title.Size = UDim2.new(1, -80, 1, 0)
-title.Position = UDim2.new(0, 40, 0, 0)
+title.Position = UDim2.new(0,40,0,0)
 title.Text = "SHADOW HUB"
-title.TextColor3 = Color3.fromRGB(255, 0, 0)
+title.TextColor3 = Color3.fromRGB(255,0,0)
 title.Font = Enum.Font.GothamBold
 title.TextSize = 24
 title.BackgroundTransparency = 1
 
+-- Boutons settings et fermer
 local settingsBtn = Instance.new("TextButton", header)
-settingsBtn.Size = UDim2.new(0, 30, 0, 30)
-settingsBtn.Position = UDim2.new(0, 5, 0, 5)
+settingsBtn.Size = UDim2.new(0,30,0,30)
+settingsBtn.Position = UDim2.new(0,5,0,5)
 settingsBtn.Text = "⚙️"
-settingsBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-settingsBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+settingsBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+settingsBtn.TextColor3 = Color3.fromRGB(255,255,255)
 settingsBtn.Font = Enum.Font.GothamBold
 settingsBtn.TextSize = 18
 
 local closeBtn = Instance.new("TextButton", header)
-closeBtn.Size = UDim2.new(0, 30, 0, 30)
-closeBtn.Position = UDim2.new(1, -35, 0, 5)
+closeBtn.Size = UDim2.new(0,30,0,30)
+closeBtn.Position = UDim2.new(1,-35,0,5)
 closeBtn.Text = "X"
-closeBtn.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
-closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeBtn.BackgroundColor3 = Color3.fromRGB(100,0,0)
+closeBtn.TextColor3 = Color3.fromRGB(255,255,255)
 closeBtn.Font = Enum.Font.GothamBold
 closeBtn.TextSize = 18
 
 local reopenBtn = Instance.new("TextButton", gui)
-reopenBtn.Size = UDim2.new(0, 100, 0, 30)
-reopenBtn.Position = UDim2.new(0, 10, 0, 10)
+reopenBtn.Size = UDim2.new(0,100,0,30)
+reopenBtn.Position = UDim2.new(0,10,0,10)
 reopenBtn.Text = "SHADOW"
-reopenBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-reopenBtn.TextColor3 = Color3.fromRGB(255, 0, 0)
+reopenBtn.BackgroundColor3 = Color3.fromRGB(0,0,0)
+reopenBtn.TextColor3 = Color3.fromRGB(255,0,0)
 reopenBtn.Font = Enum.Font.GothamBold
 reopenBtn.TextSize = 18
 reopenBtn.Visible = false
@@ -79,119 +94,71 @@ reopenBtn.MouseButton1Click:Connect(function()
     reopenBtn.Visible = false
 end)
 
--- Pages
-local mainPage = Instance.new("Frame", frame)
-mainPage.Size = UDim2.new(1, 0, 1, -40)
-mainPage.Position = UDim2.new(0, 0, 0, 40)
-mainPage.BackgroundTransparency = 1
-
-local settingsPage = Instance.new("Frame", frame)
-settingsPage.Size = UDim2.new(1, 0, 1, -40)
-settingsPage.Position = UDim2.new(0, 0, 0, 40)
-settingsPage.BackgroundTransparency = 1
-settingsPage.Visible = false
-
-local backBtn = Instance.new("TextButton", settingsPage)
-backBtn.Size = UDim2.new(0, 100, 0, 30)
-backBtn.Position = UDim2.new(0.5, -50, 1, -40)
-backBtn.Text = "← Retour"
-backBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-backBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-backBtn.Font = Enum.Font.GothamBold
-backBtn.TextSize = 18
-backBtn.MouseButton1Click:Connect(function()
-    settingsPage.Visible = false
-    mainPage.Visible = true
-end)
-settingsBtn.MouseButton1Click:Connect(function()
-    settingsPage.Visible = true
-    mainPage.Visible = false
-end)
-
--- Infos joueur
-local infoText = Instance.new("TextLabel", settingsPage)
-infoText.Size = UDim2.new(1, -20, 0, 200)
-infoText.Position = UDim2.new(0, 10, 0, 20)
-infoText.TextColor3 = Color3.fromRGB(200, 200, 200)
-infoText.TextWrapped = true
-infoText.TextYAlignment = Enum.TextYAlignment.Top
-infoText.TextXAlignment = Enum.TextXAlignment.Left
-infoText.Font = Enum.Font.Gotham
-infoText.TextSize = 18
-infoText.BackgroundTransparency = 1
-infoText.Text = string.format("👤 Nom : %s\n🆔 UserId : %d\n💎 Premium : %s\n📅 Ancienneté : %s jours",
-    player.Name,
-    player.UserId,
-    tostring(player.MembershipType == Enum.MembershipType.Premium),
-    tostring(player.AccountAge)
-)
-
--- Variables globales
-_G.flyEnabled = false
-_G.speedEnabled = false
-_G.jumpEnabled = false
-_G.noclip = false
-local buttonY = 0.1
-local spacing = 0.2
-
--- Création des boutons
+-- Fonction pour créer des boutons
 local function createButton(name, toggleVar, callback)
-    local btn = Instance.new("TextButton", mainPage)
-    btn.Position = UDim2.new(0.1, 0, buttonY, 0)
-    btn.Size = UDim2.new(0, 240, 0, 30)
-    btn.Text = name .. ": OFF"
-    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    local btn = Instance.new("TextButton", scrollFrame)
+    btn.Position = UDim2.new(0.05,0,buttonY,0)
+    btn.Size = UDim2.new(0.9,0,0,30)
+    btn.Text = name..": OFF"
+    btn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+    btn.TextColor3 = Color3.fromRGB(255,255,255)
     btn.Font = Enum.Font.GothamBold
     btn.TextSize = 18
     btn.MouseButton1Click:Connect(function()
         _G[toggleVar] = not _G[toggleVar]
-        btn.Text = name .. (_G[toggleVar] and ": ON" or ": OFF")
+        btn.Text = name..(_G[toggleVar] and ": ON" or ": OFF")
         callback(_G[toggleVar])
     end)
-    buttonY = buttonY + spacing
+    buttonY = buttonY + 0.05
+    scrollFrame.CanvasSize = UDim2.new(0,0,0,buttonY*scrollFrame.AbsoluteSize.Y + 40)
 end
 
--- VOL classique style créatif (mobile, bouton saut)
+-- VOL classique + multi saut
 createButton("Vol", "flyEnabled", function(state)
-    local speed = 60
     local vertical = 0
+    local speed = 60
+    local jumps = 0
+    local maxJumps = 5 -- multi-saut
+    humanoid.UseJumpPower = true
 
     local conn
     conn = runService.RenderStepped:Connect(function(deltaTime)
-        if not _G.flyEnabled then
-            conn:Disconnect()
-            return
+        if not _G.flyEnabled then conn:Disconnect() return end
+
+        -- Vérifie si le joueur appuie sur le bouton saut
+        if humanoid:GetState() == Enum.HumanoidStateType.Jumping or humanoid.Jump then
+            vertical = 1
+            if jumps < maxJumps then
+                jumps = jumps + 1
+            end
+        else
+            vertical = 0
+            jumps = 0
         end
 
-        -- Vérifier si le joueur appuie sur le bouton saut
-        vertical = humanoid:GetState() == Enum.HumanoidStateType.Jumping or humanoid.Jump
-        vertical = vertical and 1 or 0
-
-        -- Mouvement horizontal joystick
+        -- Direction joystick
         local moveDir = humanoid.MoveDirection
         if moveDir.Magnitude > 0 then
             hrp.CFrame = CFrame.new(hrp.Position, hrp.Position + camera.CFrame.LookVector)
         end
 
-        -- Calcul vecteur de mouvement
-        local moveVector = moveDir * speed + Vector3.new(0, vertical * speed, 0)
-        hrp.CFrame = hrp.CFrame + moveVector * deltaTime
+        local moveVector = moveDir*speed + Vector3.new(0, vertical*speed,0)
+        hrp.CFrame = hrp.CFrame + moveVector*deltaTime
     end)
 end)
 
 -- Vitesse
-createButton("Vitesse", "speedEnabled", function(state)
+createButton("Vitesse","speedEnabled",function(state)
     humanoid.WalkSpeed = state and 100 or 16
 end)
 
 -- Saut
-createButton("Saut", "jumpEnabled", function(state)
+createButton("Saut","jumpEnabled",function(state)
     humanoid.JumpPower = state and 150 or 50
 end)
 
 -- Noclip
-createButton("Noclip", "noclip", function(state)
+createButton("Noclip","noclip",function(state)
     local stepped
     stepped = runService.Stepped:Connect(function()
         if _G.noclip then
@@ -211,20 +178,31 @@ createButton("Noclip", "noclip", function(state)
     end)
 end)
 
+-- Invisibilité totale
+createButton("Invisible","invisibleEnabled",function(state)
+    for _, part in pairs(character:GetDescendants()) do
+        if part:IsA("BasePart") or part:IsA("Decal") then
+            part.Transparency = state and 1 or 0
+            part.CanCollide = not state
+        end
+    end
+    humanoid.NameDisplayDistance = state and 0 or 100
+end)
+
 -- Animation rouge ↔ bleu
 local function animateColor(textLabel)
     spawn(function()
         while true do
-            for i = 0, 1, 0.01 do
-                local r = math.floor(255 * (1 - i))
-                local b = math.floor(255 * i)
-                textLabel.TextColor3 = Color3.fromRGB(r, 0, b)
+            for i = 0,1,0.01 do
+                local r = math.floor(255*(1-i))
+                local b = math.floor(255*i)
+                textLabel.TextColor3 = Color3.fromRGB(r,0,b)
                 wait(0.05)
             end
-            for i = 0, 1, 0.01 do
-                local r = math.floor(255 * i)
-                local b = math.floor(255 * (1 - i))
-                textLabel.TextColor3 = Color3.fromRGB(r, 0, b)
+            for i = 0,1,0.01 do
+                local r = math.floor(255*i)
+                local b = math.floor(255*(1-i))
+                textLabel.TextColor3 = Color3.fromRGB(r,0,b)
                 wait(0.05)
             end
         end
