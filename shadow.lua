@@ -98,12 +98,10 @@ backBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 backBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 backBtn.Font = Enum.Font.GothamBold
 backBtn.TextSize = 18
-
 backBtn.MouseButton1Click:Connect(function()
     settingsPage.Visible = false
     mainPage.Visible = true
 end)
-
 settingsBtn.MouseButton1Click:Connect(function()
     settingsPage.Visible = true
     mainPage.Visible = false
@@ -153,7 +151,7 @@ local function createButton(name, toggleVar, callback)
     buttonY = buttonY + spacing
 end
 
--- 🔥 VOL style créatif Minecraft corrigé
+-- 🔥 VOL créatif mobile & PC
 createButton("Vol", "flyEnabled", function(state)
     local hrp = character:FindFirstChild("HumanoidRootPart")
     local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -176,18 +174,7 @@ createButton("Vol", "flyEnabled", function(state)
         bg.Parent = hrp
 
         local RunService = game:GetService("RunService")
-        local UserInputService = game:GetService("UserInputService")
         local conn
-
-        local function getMoveInput()
-            local move = Vector3.zero
-            if UserInputService:IsKeyDown(Enum.KeyCode.W) then move = move + Vector3.new(0,0,-1) end
-            if UserInputService:IsKeyDown(Enum.KeyCode.S) then move = move + Vector3.new(0,0,1) end
-            if UserInputService:IsKeyDown(Enum.KeyCode.A) then move = move + Vector3.new(-1,0,0) end
-            if UserInputService:IsKeyDown(Enum.KeyCode.D) then move = move + Vector3.new(1,0,0) end
-            return move.Magnitude > 0 and move.Unit or Vector3.zero
-        end
-
         conn = RunService.Heartbeat:Connect(function()
             if not _G.flyEnabled then
                 conn:Disconnect()
@@ -197,15 +184,17 @@ createButton("Vol", "flyEnabled", function(state)
                 return
             end
 
+            local moveDir = humanoid.MoveDirection -- compatible joystick mobile
             local camCF = camera.CFrame
-            local inputDir = getMoveInput()
-            if inputDir.Magnitude > 0 then
-                local move = (camCF.LookVector * inputDir.Z + camCF.RightVector * inputDir.X)
+
+            if moveDir.Magnitude > 0 then
+                local move = (camCF.LookVector * moveDir.Z + camCF.RightVector * moveDir.X)
                 bv.Velocity = move * 60
             else
                 bv.Velocity = Vector3.zero
             end
 
+            -- perso suit toujours la caméra
             bg.CFrame = CFrame.new(hrp.Position, hrp.Position + camCF.LookVector)
         end)
     else
@@ -238,16 +227,20 @@ createButton("Noclip", "noclip", function(state)
     end)
 end)
 
--- 🌈 Animation rouge ↔ bleu
+-- 🌈 Animation texte
 local function animateColor(textLabel)
     spawn(function()
         while true do
-            for i = 0,1,0.01 do
-                textLabel.TextColor3 = Color3.fromRGB(math.floor(255*(1-i)),0,math.floor(255*i))
+            for i = 0, 1, 0.01 do
+                local r = math.floor(255 * (1 - i))
+                local b = math.floor(255 * i)
+                textLabel.TextColor3 = Color3.fromRGB(r, 0, b)
                 wait(0.05)
             end
-            for i = 0,1,0.01 do
-                textLabel.TextColor3 = Color3.fromRGB(math.floor(255*i),0,math.floor(255*(1-i)))
+            for i = 0, 1, 0.01 do
+                local r = math.floor(255 * i)
+                local b = math.floor(255 * (1 - i))
+                textLabel.TextColor3 = Color3.fromRGB(r, 0, b)
                 wait(0.05)
             end
         end
