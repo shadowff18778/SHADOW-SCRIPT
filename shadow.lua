@@ -76,13 +76,20 @@ local speedEnabled = false
 local jumpEnabled = false
 local noclip = false
 
+-- Placement propre
+local buttonY = 0.15
+local spacing = 0.15
+
 -- Bouton Vol
 local flyBtn = Instance.new("TextButton", frame)
-flyBtn.Position = UDim2.new(0.1, 0, 0.15, 0)
+flyBtn.Position = UDim2.new(0.1, 0, buttonY, 0)
 flyBtn.Size = UDim2.new(0, 240, 0, 30)
 flyBtn.Text = "Vol: OFF"
 flyBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 flyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+flyBtn.Font = Enum.Font.GothamBold
+flyBtn.TextSize = 18
+flyBtn.Parent = frame
 
 flyBtn.MouseButton1Click:Connect(function()
     flyEnabled = not flyEnabled
@@ -101,11 +108,14 @@ end)
 
 -- Bouton Vitesse
 local speedBtn = Instance.new("TextButton", frame)
-speedBtn.Position = UDim2.new(0.1, 0, 0.35, 0)
+speedBtn.Position = UDim2.new(0.1, 0, buttonY + spacing, 0)
 speedBtn.Size = UDim2.new(0, 240, 0, 30)
 speedBtn.Text = "Vitesse: OFF"
 speedBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 speedBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+speedBtn.Font = Enum.Font.GothamBold
+speedBtn.TextSize = 18
+speedBtn.Parent = frame
 
 speedBtn.MouseButton1Click:Connect(function()
     speedEnabled = not speedEnabled
@@ -115,11 +125,14 @@ end)
 
 -- Bouton Saut
 local jumpBtn = Instance.new("TextButton", frame)
-jumpBtn.Position = UDim2.new(0.1, 0, 0.55, 0)
+jumpBtn.Position = UDim2.new(0.1, 0, buttonY + spacing * 2, 0)
 jumpBtn.Size = UDim2.new(0, 240, 0, 30)
 jumpBtn.Text = "Saut: OFF"
 jumpBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 jumpBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+jumpBtn.Font = Enum.Font.GothamBold
+jumpBtn.TextSize = 18
+jumpBtn.Parent = frame
 
 jumpBtn.MouseButton1Click:Connect(function()
     jumpEnabled = not jumpEnabled
@@ -129,11 +142,14 @@ end)
 
 -- Bouton Noclip
 local noclipBtn = Instance.new("TextButton", frame)
-noclipBtn.Position = UDim2.new(0.1, 0, 0.75, 0)
+noclipBtn.Position = UDim2.new(0.1, 0, buttonY + spacing * 3, 0)
 noclipBtn.Size = UDim2.new(0, 240, 0, 30)
 noclipBtn.Text = "Noclip: OFF"
 noclipBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 noclipBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+noclipBtn.Font = Enum.Font.GothamBold
+noclipBtn.TextSize = 18
+noclipBtn.Parent = frame
 
 noclipBtn.MouseButton1Click:Connect(function()
     noclip = not noclip
@@ -149,3 +165,26 @@ game:GetService("RunService").Stepped:Connect(function()
         end
     end
 end)
+
+-- 🌈 Animation de couleur (rouge ↔ bleu)
+local function animateColor(textLabel)
+    spawn(function()
+        while true do
+            for i = 0, 1, 0.01 do
+                local r = math.floor(255 * (1 - i))
+                local b = math.floor(255 * i)
+                textLabel.TextColor3 = Color3.fromRGB(r, 0, b)
+                wait(0.05)
+            end
+            for i = 0, 1, 0.01 do
+                local r = math.floor(255 * i)
+                local b = math.floor(255 * (1 - i))
+                textLabel.TextColor3 = Color3.fromRGB(r, 0, b)
+                wait(0.05)
+            end
+        end
+    end)
+end
+
+animateColor(header)
+animateColor(reopenBtn)
