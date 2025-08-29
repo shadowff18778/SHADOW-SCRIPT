@@ -12,7 +12,7 @@ local uis = game:GetService("UserInputService")
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "ShadowHub"
 
--- Fenêtre principale (ajustée)
+-- Fenêtre principale
 local frame = Instance.new("Frame", gui)
 frame.Size = UDim2.new(0, 320, 0, 250)
 frame.Position = UDim2.new(0.5, -160, 0.5, -125)
@@ -21,7 +21,6 @@ frame.BorderSizePixel = 0
 frame.Active = true
 frame.Draggable = true
 frame.BackgroundTransparency = 1
-
 for i = 1, 10 do
     frame.BackgroundTransparency = 1 - (i * 0.1)
     wait(0.05)
@@ -41,7 +40,7 @@ title.Font = Enum.Font.GothamBold
 title.TextSize = 24
 title.BackgroundTransparency = 1
 
--- Bouton Settings
+-- Boutons
 local settingsBtn = Instance.new("TextButton", header)
 settingsBtn.Size = UDim2.new(0, 30, 0, 30)
 settingsBtn.Position = UDim2.new(0, 5, 0, 5)
@@ -51,7 +50,6 @@ settingsBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 settingsBtn.Font = Enum.Font.GothamBold
 settingsBtn.TextSize = 18
 
--- Bouton Fermer
 local closeBtn = Instance.new("TextButton", header)
 closeBtn.Size = UDim2.new(0, 30, 0, 30)
 closeBtn.Position = UDim2.new(1, -35, 0, 5)
@@ -61,7 +59,6 @@ closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 closeBtn.Font = Enum.Font.GothamBold
 closeBtn.TextSize = 18
 
--- Bouton Réouverture
 local reopenBtn = Instance.new("TextButton", gui)
 reopenBtn.Size = UDim2.new(0, 100, 0, 30)
 reopenBtn.Position = UDim2.new(0, 10, 0, 10)
@@ -76,7 +73,6 @@ closeBtn.MouseButton1Click:Connect(function()
     frame.Visible = false
     reopenBtn.Visible = true
 end)
-
 reopenBtn.MouseButton1Click:Connect(function()
     frame.Visible = true
     reopenBtn.Visible = false
@@ -94,7 +90,6 @@ settingsPage.Position = UDim2.new(0, 0, 0, 40)
 settingsPage.BackgroundTransparency = 1
 settingsPage.Visible = false
 
--- Retour vers main
 local backBtn = Instance.new("TextButton", settingsPage)
 backBtn.Size = UDim2.new(0, 100, 0, 30)
 backBtn.Position = UDim2.new(0.5, -50, 1, -40)
@@ -125,7 +120,6 @@ infoText.TextXAlignment = Enum.TextXAlignment.Left
 infoText.Font = Enum.Font.Gotham
 infoText.TextSize = 18
 infoText.BackgroundTransparency = 1
-
 infoText.Text = string.format("👤 Nom : %s\n🆔 UserId : %d\n💎 Premium : %s\n📅 Ancienneté : %s jours",
     player.Name,
     player.UserId,
@@ -151,17 +145,15 @@ local function createButton(name, toggleVar, callback)
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     btn.Font = Enum.Font.GothamBold
     btn.TextSize = 18
-
     btn.MouseButton1Click:Connect(function()
         _G[toggleVar] = not _G[toggleVar]
         btn.Text = name .. (_G[toggleVar] and ": ON" or ": OFF")
         callback(_G[toggleVar])
     end)
-
     buttonY = buttonY + spacing
 end
 
--- 🔥 VOL style Minecraft créatif
+-- 🔥 VOL style créatif Minecraft corrigé
 createButton("Vol", "flyEnabled", function(state)
     local hrp = character:FindFirstChild("HumanoidRootPart")
     local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -183,8 +175,20 @@ createButton("Vol", "flyEnabled", function(state)
         bg.CFrame = hrp.CFrame
         bg.Parent = hrp
 
+        local RunService = game:GetService("RunService")
+        local UserInputService = game:GetService("UserInputService")
         local conn
-        conn = game:GetService("RunService").Heartbeat:Connect(function()
+
+        local function getMoveInput()
+            local move = Vector3.zero
+            if UserInputService:IsKeyDown(Enum.KeyCode.W) then move = move + Vector3.new(0,0,-1) end
+            if UserInputService:IsKeyDown(Enum.KeyCode.S) then move = move + Vector3.new(0,0,1) end
+            if UserInputService:IsKeyDown(Enum.KeyCode.A) then move = move + Vector3.new(-1,0,0) end
+            if UserInputService:IsKeyDown(Enum.KeyCode.D) then move = move + Vector3.new(1,0,0) end
+            return move.Magnitude > 0 and move.Unit or Vector3.zero
+        end
+
+        conn = RunService.Heartbeat:Connect(function()
             if not _G.flyEnabled then
                 conn:Disconnect()
                 bv:Destroy()
@@ -193,21 +197,16 @@ createButton("Vol", "flyEnabled", function(state)
                 return
             end
 
-            local moveDir = humanoid.MoveDirection
             local camCF = camera.CFrame
-
-            -- perso suit la caméra
-            bg.CFrame = CFrame.new(hrp.Position, hrp.Position + camCF.LookVector)
-
-            if moveDir.Magnitude > 0 then
-                local forward = camCF.LookVector
-                local right = camCF.RightVector
-                local move = (forward * moveDir.Z + right * moveDir.X).Unit
-
+            local inputDir = getMoveInput()
+            if inputDir.Magnitude > 0 then
+                local move = (camCF.LookVector * inputDir.Z + camCF.RightVector * inputDir.X)
                 bv.Velocity = move * 60
             else
                 bv.Velocity = Vector3.zero
             end
+
+            bg.CFrame = CFrame.new(hrp.Position, hrp.Position + camCF.LookVector)
         end)
     else
         local oldBV = hrp:FindFirstChild("FlyVelocity")
@@ -233,9 +232,7 @@ createButton("Noclip", "noclip", function(state)
     game:GetService("RunService").Stepped:Connect(function()
         if _G.noclip then
             for _, part in pairs(character:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CanCollide = false
-                end
+                if part:IsA("BasePart") then part.CanCollide = false end
             end
         end
     end)
@@ -245,16 +242,12 @@ end)
 local function animateColor(textLabel)
     spawn(function()
         while true do
-            for i = 0, 1, 0.01 do
-                local r = math.floor(255 * (1 - i))
-                local b = math.floor(255 * i)
-                textLabel.TextColor3 = Color3.fromRGB(r, 0, b)
+            for i = 0,1,0.01 do
+                textLabel.TextColor3 = Color3.fromRGB(math.floor(255*(1-i)),0,math.floor(255*i))
                 wait(0.05)
             end
-            for i = 0, 1, 0.01 do
-                local r = math.floor(255 * i)
-                local b = math.floor(255 * (1 - i))
-                textLabel.TextColor3 = Color3.fromRGB(r, 0, b)
+            for i = 0,1,0.01 do
+                textLabel.TextColor3 = Color3.fromRGB(math.floor(255*i),0,math.floor(255*(1-i)))
                 wait(0.05)
             end
         end
