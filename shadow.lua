@@ -1,5 +1,3 @@
--- SHADOW HUB [SUPPORT ALL EXECUTOR]
-
 game.StarterGui:SetCore("SendNotification", {
     Title = "SHADOW HUB",
     Text = "Chargement du mod... Prépare-toi à dominer 😈",
@@ -14,10 +12,10 @@ local uis = game:GetService("UserInputService")
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "ShadowHub"
 
--- Fenêtre principale
+-- Fenêtre principale (taille réduite)
 local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0, 320, 0, 360)
-frame.Position = UDim2.new(0.5, -160, 0.5, -180)
+frame.Size = UDim2.new(0, 320, 0, 250) -- 🔹 hauteur ajustée
+frame.Position = UDim2.new(0.5, -160, 0.5, -125)
 frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 frame.BorderSizePixel = 0
 frame.Active = true
@@ -134,14 +132,15 @@ infoText.Text = string.format("👤 Nom : %s\n🆔 UserId : %d\n💎 Premium : %
     tostring(player.MembershipType == Enum.MembershipType.Premium),
     tostring(player.AccountAge)
 )
--- Initialisation des variables globales
+
+-- Variables globales
 _G.flyEnabled = false
 _G.speedEnabled = false
 _G.jumpEnabled = false
 _G.noclip = false
 
 local buttonY = 0.1
-local spacing = 0.15
+local spacing = 0.2
 
 local function createButton(name, toggleVar, callback)
     local btn = Instance.new("TextButton", mainPage)
@@ -162,7 +161,7 @@ local function createButton(name, toggleVar, callback)
     buttonY = buttonY + spacing
 end
 
--- 🔥 VOL avec support mobile
+-- 🔥 VOL style Minecraft (mobile)
 createButton("Vol", "flyEnabled", function(state)
     local hrp = character:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
@@ -174,43 +173,24 @@ createButton("Vol", "flyEnabled", function(state)
         bv.Velocity = Vector3.zero
         bv.Parent = hrp
 
-        local bg = Instance.new("BodyGyro")
-        bg.Name = "FlyGyro"
-        bg.MaxTorque = Vector3.new(1e5, 1e5, 1e5)
-        bg.CFrame = camera.CFrame
-        bg.Parent = hrp
-
-        local moveDirection = Vector3.zero
-
-        local function updateMovement()
-            local move = Vector3.zero
-            move += uis:IsKeyDown(Enum.KeyCode.Space) and Vector3.new(0, 1, 0) or Vector3.zero
-            move -= uis:IsKeyDown(Enum.KeyCode.LeftControl) and Vector3.new(0, 1, 0) or Vector3.zero
-            move += uis:IsKeyDown(Enum.KeyCode.W) and camera.CFrame.LookVector or Vector3.zero
-            move -= uis:IsKeyDown(Enum.KeyCode.S) and camera.CFrame.LookVector or Vector3.zero
-            move += uis:IsKeyDown(Enum.KeyCode.A) and -camera.CFrame.RightVector or Vector3.zero
-            move += uis:IsKeyDown(Enum.KeyCode.D) and camera.CFrame.RightVector or Vector3.zero
-            moveDirection = move
-        end
-
-        local connInput = uis.InputBegan:Connect(updateMovement)
-        local connEnd = uis.InputEnded:Connect(updateMovement)
-
         local conn = game:GetService("RunService").Heartbeat:Connect(function()
             if not _G.flyEnabled then
                 conn:Disconnect()
-                connInput:Disconnect()
-                connEnd:Disconnect()
                 bv:Destroy()
-                bg:Destroy()
                 return
             end
 
-            bg.CFrame = camera.CFrame
-            bv.Velocity = moveDirection.Magnitude > 0 and moveDirection.Unit * 50 or Vector3.zero
+            -- Déplacement basé sur la caméra
+            local move = Vector3.zero
+            if uis.TouchEnabled then
+                -- mobile : avance avec un bouton tactile spécial
+                move = camera.CFrame.LookVector * 50
+            end
+
+            bv.Velocity = move
         end)
 
-        -- 📱 Boutons tactiles pour mobile
+        -- 📱 Boutons tactiles pour monter/descendre
         local upBtn = Instance.new("TextButton", gui)
         upBtn.Size = UDim2.new(0, 60, 0, 60)
         upBtn.Position = UDim2.new(1, -70, 0.5, -70)
@@ -232,22 +212,19 @@ createButton("Vol", "flyEnabled", function(state)
         downBtn.Visible = true
 
         upBtn.MouseButton1Down:Connect(function()
-            moveDirection += Vector3.new(0, 1, 0)
+            bv.Velocity = camera.CFrame.UpVector * 50
         end)
         downBtn.MouseButton1Down:Connect(function()
-            moveDirection -= Vector3.new(0, 1, 0)
+            bv.Velocity = -camera.CFrame.UpVector * 50
         end)
 
-        -- Nettoyage des boutons quand vol désactivé
         table.insert(_G.cleanupFlyUI or {}, function()
             upBtn:Destroy()
             downBtn:Destroy()
         end)
     else
         local oldBV = hrp:FindFirstChild("FlyVelocity")
-        local oldBG = hrp:FindFirstChild("FlyGyro")
         if oldBV then oldBV:Destroy() end
-        if oldBG then oldBG:Destroy() end
         if _G.cleanupFlyUI then
             for _, f in pairs(_G.cleanupFlyUI) do f() end
             _G.cleanupFlyUI = {}
@@ -278,7 +255,7 @@ createButton("Noclip", "noclip", function(state)
     end)
 end)
 
--- 🌈 Animation rouge ↔ bleu (header + bouton SHADOW)
+-- 🌈 Animation rouge ↔ bleu
 local function animateColor(textLabel)
     spawn(function()
         while true do
