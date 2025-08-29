@@ -7,6 +7,7 @@ game.StarterGui:SetCore("SendNotification", {
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local camera = workspace.CurrentCamera
+local uis = game:GetService("UserInputService")
 
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "ShadowHub"
@@ -160,53 +161,60 @@ local function createButton(name, toggleVar, callback)
     buttonY = buttonY + spacing
 end
 
--- 🔥 VOL style Minecraft corrigé
+-- 🔥 VOL style Minecraft créatif
 createButton("Vol", "flyEnabled", function(state)
-    local hrp = character:WaitForChild("HumanoidRootPart")
-    if not hrp then return end
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if not hrp or not humanoid then return end
 
     if state then
+        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+
         local bv = Instance.new("BodyVelocity")
         bv.Name = "FlyVelocity"
         bv.MaxForce = Vector3.new(1e5, 1e5, 1e5)
         bv.Velocity = Vector3.zero
         bv.Parent = hrp
 
+        local bg = Instance.new("BodyGyro")
+        bg.Name = "FlyGyro"
+        bg.MaxTorque = Vector3.new(1e5, 1e5, 1e5)
+        bg.P = 1e4
+        bg.CFrame = hrp.CFrame
+        bg.Parent = hrp
+
         local conn
         conn = game:GetService("RunService").Heartbeat:Connect(function()
             if not _G.flyEnabled then
                 conn:Disconnect()
                 bv:Destroy()
+                bg:Destroy()
+                humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
                 return
             end
 
-            local humanoid = character:FindFirstChildOfClass("Humanoid")
-            if not humanoid then return end
-
             local moveDir = humanoid.MoveDirection
+            local camCF = camera.CFrame
+
+            -- perso suit la caméra
+            bg.CFrame = CFrame.new(hrp.Position, hrp.Position + camCF.LookVector)
+
             if moveDir.Magnitude > 0 then
-                local camCF = camera.CFrame
-                -- Calcul direction relative à la caméra
                 local forward = camCF.LookVector
                 local right = camCF.RightVector
-                local up = Vector3.new(0,1,0)
+                local move = (forward * moveDir.Z + right * moveDir.X).Unit
 
-                -- Projection horizontale
-                forward = Vector3.new(forward.X, 0, forward.Z).Unit
-                right = Vector3.new(right.X, 0, right.Z).Unit
-
-                local finalDir = (forward * moveDir.Z + right * moveDir.X + up * moveDir.Y).Unit
-                bv.Velocity = finalDir * 50
+                bv.Velocity = move * 60
             else
                 bv.Velocity = Vector3.zero
             end
-
-            -- Rotation du perso vers la caméra
-            hrp.CFrame = CFrame.new(hrp.Position, hrp.Position + camera.CFrame.LookVector)
         end)
     else
         local oldBV = hrp:FindFirstChild("FlyVelocity")
         if oldBV then oldBV:Destroy() end
+        local oldBG = hrp:FindFirstChild("FlyGyro")
+        if oldBG then oldBG:Destroy() end
+        humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
     end
 end)
 
