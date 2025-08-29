@@ -1,6 +1,6 @@
 game.StarterGui:SetCore("SendNotification", {
     Title = "SHADOW HUB",
-    Text = "Chargement du mod... Prépare-toi à dominer 😈",
+    Text = "Chargement du mod... 😈",
     Duration = 5
 })
 
@@ -8,6 +8,7 @@ local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local camera = workspace.CurrentCamera
 local uis = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "ShadowHub"
@@ -151,7 +152,7 @@ local function createButton(name, toggleVar, callback)
     buttonY = buttonY + spacing
 end
 
--- 🔥 VOL créatif mobile & PC
+-- 🔥 Vol créatif mobile et PC
 createButton("Vol", "flyEnabled", function(state)
     local hrp = character:FindFirstChild("HumanoidRootPart")
     local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -173,7 +174,6 @@ createButton("Vol", "flyEnabled", function(state)
         bg.CFrame = hrp.CFrame
         bg.Parent = hrp
 
-        local RunService = game:GetService("RunService")
         local conn
         conn = RunService.Heartbeat:Connect(function()
             if not _G.flyEnabled then
@@ -184,7 +184,7 @@ createButton("Vol", "flyEnabled", function(state)
                 return
             end
 
-            local moveDir = humanoid.MoveDirection -- compatible joystick mobile
+            local moveDir = humanoid.MoveDirection
             local camCF = camera.CFrame
 
             if moveDir.Magnitude > 0 then
@@ -194,15 +194,15 @@ createButton("Vol", "flyEnabled", function(state)
                 bv.Velocity = Vector3.zero
             end
 
-            -- perso suit toujours la caméra
             bg.CFrame = CFrame.new(hrp.Position, hrp.Position + camCF.LookVector)
         end)
     else
-        local oldBV = hrp:FindFirstChild("FlyVelocity")
+        local oldBV = character:FindFirstChild("HumanoidRootPart"):FindFirstChild("FlyVelocity")
         if oldBV then oldBV:Destroy() end
-        local oldBG = hrp:FindFirstChild("FlyGyro")
+        local oldBG = character:FindFirstChild("HumanoidRootPart"):FindFirstChild("FlyGyro")
         if oldBG then oldBG:Destroy() end
         humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
+        humanoid.JumpPower = _G.jumpEnabled and 150 or 50
     end
 end)
 
@@ -217,14 +217,24 @@ createButton("Saut", "jumpEnabled", function(state)
 end)
 
 -- 🧱 Noclip
-createButton("Noclip", "noclip", function(state)
-    game:GetService("RunService").Stepped:Connect(function()
-        if _G.noclip then
-            for _, part in pairs(character:GetDescendants()) do
-                if part:IsA("BasePart") then part.CanCollide = false end
+local noclipConn
+noclipConn = RunService.Stepped:Connect(function()
+    if _G.noclip then
+        for _, part in pairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
             end
         end
-    end)
+    else
+        for _, part in pairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = true
+            end
+        end
+    end
+end)
+createButton("Noclip", "noclip", function(state)
+    -- rien de plus à faire, la connexion gère l'activation/désactivation
 end)
 
 -- 🌈 Animation texte
@@ -232,15 +242,11 @@ local function animateColor(textLabel)
     spawn(function()
         while true do
             for i = 0, 1, 0.01 do
-                local r = math.floor(255 * (1 - i))
-                local b = math.floor(255 * i)
-                textLabel.TextColor3 = Color3.fromRGB(r, 0, b)
+                textLabel.TextColor3 = Color3.fromRGB(math.floor(255*(1-i)),0,math.floor(255*i))
                 wait(0.05)
             end
             for i = 0, 1, 0.01 do
-                local r = math.floor(255 * i)
-                local b = math.floor(255 * (1 - i))
-                textLabel.TextColor3 = Color3.fromRGB(r, 0, b)
+                textLabel.TextColor3 = Color3.fromRGB(math.floor(255*i),0,math.floor(255*(1-i)))
                 wait(0.05)
             end
         end
