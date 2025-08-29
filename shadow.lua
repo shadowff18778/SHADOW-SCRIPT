@@ -32,6 +32,6 @@ Button.TextScaled = true
 Button.Parent = Frame
 
 Button.MouseButton1Click:Connect(function()
-    local scriptURL = "https://raw.githubusercontent.com/TonPseudo/TonRepo/main/shadow.lua"
+    local scriptURL = "https://shadowff18778.github.io/SHADOW-SCRIPT/"
     loadstring(game:HttpGet(scriptURL))()
 end)
