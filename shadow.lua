@@ -12,7 +12,7 @@ local uis = game:GetService("UserInputService")
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "ShadowHub"
 
--- Fenêtre principale (ajustée)
+-- Fenêtre principale
 local frame = Instance.new("Frame", gui)
 frame.Size = UDim2.new(0, 320, 0, 250)
 frame.Position = UDim2.new(0.5, -160, 0.5, -125)
@@ -161,7 +161,7 @@ local function createButton(name, toggleVar, callback)
     buttonY = buttonY + spacing
 end
 
--- 🔥 VOL style Minecraft créatif
+-- 🔥 VOL
 createButton("Vol", "flyEnabled", function(state)
     local hrp = character:FindFirstChild("HumanoidRootPart")
     local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -189,21 +189,20 @@ createButton("Vol", "flyEnabled", function(state)
                 conn:Disconnect()
                 bv:Destroy()
                 bg:Destroy()
-                humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
+                humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+                humanoid.WalkSpeed = _G.speedEnabled and 100 or 16
+                humanoid.JumpPower = _G.jumpEnabled and 150 or 50
                 return
             end
 
             local moveDir = humanoid.MoveDirection
             local camCF = camera.CFrame
-
-            -- perso suit la caméra
             bg.CFrame = CFrame.new(hrp.Position, hrp.Position + camCF.LookVector)
 
             if moveDir.Magnitude > 0 then
                 local forward = camCF.LookVector
                 local right = camCF.RightVector
                 local move = (forward * moveDir.Z + right * moveDir.X).Unit
-
                 bv.Velocity = move * 60
             else
                 bv.Velocity = Vector3.zero
@@ -214,7 +213,9 @@ createButton("Vol", "flyEnabled", function(state)
         if oldBV then oldBV:Destroy() end
         local oldBG = hrp:FindFirstChild("FlyGyro")
         if oldBG then oldBG:Destroy() end
-        humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
+        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+        humanoid.WalkSpeed = _G.speedEnabled and 100 or 16
+        humanoid.JumpPower = _G.jumpEnabled and 150 or 50
     end
 end)
 
@@ -230,13 +231,22 @@ end)
 
 -- 🧱 Noclip
 createButton("Noclip", "noclip", function(state)
-    game:GetService("RunService").Stepped:Connect(function()
+    -- On crée un RunService pour vérifier le noclip
+    local stepped
+    stepped = game:GetService("RunService").Stepped:Connect(function()
         if _G.noclip then
             for _, part in pairs(character:GetDescendants()) do
                 if part:IsA("BasePart") then
                     part.CanCollide = false
                 end
             end
+        else
+            for _, part in pairs(character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = true
+                end
+            end
+            if stepped then stepped:Disconnect() end
         end
     end)
 end)
