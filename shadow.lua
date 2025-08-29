@@ -7,8 +7,10 @@ game.StarterGui:SetCore("SendNotification", {
     Duration = 5
 })
 
--- GUI Setup
 local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- GUI Setup
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "ShadowHub"
 
@@ -20,6 +22,13 @@ frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 frame.BorderSizePixel = 0
 frame.Active = true
 frame.Draggable = true
+frame.BackgroundTransparency = 1
+
+-- Animation d'ouverture
+for i = 1, 10 do
+    frame.BackgroundTransparency = 1 - (i * 0.1)
+    wait(0.05)
+end
 
 -- Header
 local header = Instance.new("TextLabel", frame)
@@ -51,47 +60,81 @@ reopenBtn.Font = Enum.Font.GothamBold
 reopenBtn.TextSize = 18
 reopenBtn.Visible = false
 
--- Fermer la fenêtre
 closeBtn.MouseButton1Click:Connect(function()
     frame.Visible = false
     reopenBtn.Visible = true
 end)
 
--- Rouvrir la fenêtre
 reopenBtn.MouseButton1Click:Connect(function()
     frame.Visible = true
     reopenBtn.Visible = false
 end)
 
--- Boutons de mods
+-- Variables de toggle
+local flyEnabled = false
+local speedEnabled = false
+local jumpEnabled = false
+local noclip = false
+
+-- Bouton Vol
+local flyBtn = Instance.new("TextButton", frame)
+flyBtn.Position = UDim2.new(0.1, 0, 0.15, 0)
+flyBtn.Size = UDim2.new(0, 240, 0, 30)
+flyBtn.Text = "Vol: OFF"
+flyBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+flyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+flyBtn.MouseButton1Click:Connect(function()
+    flyEnabled = not flyEnabled
+    flyBtn.Text = flyEnabled and "Vol: ON" or "Vol: OFF"
+    local root = character:FindFirstChild("HumanoidRootPart")
+    if flyEnabled then
+        local bp = Instance.new("BodyPosition", root)
+        bp.Name = "FlyBP"
+        bp.MaxForce = Vector3.new(0, math.huge, 0)
+        bp.Position = root.Position + Vector3.new(0, 50, 0)
+    else
+        local bp = root:FindFirstChild("FlyBP")
+        if bp then bp:Destroy() end
+    end
+end)
+
+-- Bouton Vitesse
 local speedBtn = Instance.new("TextButton", frame)
-speedBtn.Position = UDim2.new(0.1, 0, 0.3, 0)
-speedBtn.Size = UDim2.new(0, 240, 0, 40)
-speedBtn.Text = "Super Vitesse"
+speedBtn.Position = UDim2.new(0.1, 0, 0.35, 0)
+speedBtn.Size = UDim2.new(0, 240, 0, 30)
+speedBtn.Text = "Vitesse: OFF"
 speedBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 speedBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+
 speedBtn.MouseButton1Click:Connect(function()
-    player.Character.Humanoid.WalkSpeed = 100
+    speedEnabled = not speedEnabled
+    speedBtn.Text = speedEnabled and "Vitesse: ON" or "Vitesse: OFF"
+    character.Humanoid.WalkSpeed = speedEnabled and 100 or 16
 end)
 
+-- Bouton Saut
 local jumpBtn = Instance.new("TextButton", frame)
-jumpBtn.Position = UDim2.new(0.1, 0, 0.5, 0)
-jumpBtn.Size = UDim2.new(0, 240, 0, 40)
-jumpBtn.Text = "Super Saut"
+jumpBtn.Position = UDim2.new(0.1, 0, 0.55, 0)
+jumpBtn.Size = UDim2.new(0, 240, 0, 30)
+jumpBtn.Text = "Saut: OFF"
 jumpBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 jumpBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+
 jumpBtn.MouseButton1Click:Connect(function()
-    player.Character.Humanoid.JumpPower = 150
+    jumpEnabled = not jumpEnabled
+    jumpBtn.Text = jumpEnabled and "Saut: ON" or "Saut: OFF"
+    character.Humanoid.JumpPower = jumpEnabled and 150 or 50
 end)
 
+-- Bouton Noclip
 local noclipBtn = Instance.new("TextButton", frame)
-noclipBtn.Position = UDim2.new(0.1, 0, 0.7, 0)
-noclipBtn.Size = UDim2.new(0, 240, 0, 40)
-noclipBtn.Text = "Noclip"
+noclipBtn.Position = UDim2.new(0.1, 0, 0.75, 0)
+noclipBtn.Size = UDim2.new(0, 240, 0, 30)
+noclipBtn.Text = "Noclip: OFF"
 noclipBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 noclipBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 
-local noclip = false
 noclipBtn.MouseButton1Click:Connect(function()
     noclip = not noclip
     noclipBtn.Text = noclip and "Noclip: ON" or "Noclip: OFF"
@@ -99,7 +142,7 @@ end)
 
 game:GetService("RunService").Stepped:Connect(function()
     if noclip then
-        for _, part in pairs(player.Character:GetDescendants()) do
+        for _, part in pairs(character:GetDescendants()) do
             if part:IsA("BasePart") then
                 part.CanCollide = false
             end
