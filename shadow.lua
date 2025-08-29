@@ -1,6 +1,6 @@
 -- SHADOW HUB [SUPPORT ALL EXECUTOR]
 
--- Intro Notification
+-- Notification d'intro
 game.StarterGui:SetCore("SendNotification", {
     Title = "SHADOW HUB",
     Text = "Chargement du mod... Prépare-toi à dominer 😈",
@@ -8,70 +8,98 @@ game.StarterGui:SetCore("SendNotification", {
 })
 
 -- GUI Setup
-local ScreenGui = Instance.new("ScreenGui")
-local Frame = Instance.new("Frame")
-local Title = Instance.new("TextLabel")
-local ButtonSpeed = Instance.new("TextButton")
-local ButtonJump = Instance.new("TextButton")
-local ButtonNoclip = Instance.new("TextButton")
+local player = game.Players.LocalPlayer
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+gui.Name = "ShadowHub"
 
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-ScreenGui.Name = "ShadowHub"
+-- Fenêtre principale
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 300, 0, 250)
+frame.Position = UDim2.new(0.3, 0, 0.3, 0)
+frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
 
-Frame.Parent = ScreenGui
-Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-Frame.Position = UDim2.new(0.3, 0, 0.3, 0)
-Frame.Size = UDim2.new(0, 300, 0, 250)
-Frame.BorderSizePixel = 0
+-- Header
+local header = Instance.new("TextLabel", frame)
+header.Size = UDim2.new(1, 0, 0, 40)
+header.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+header.Text = "SHADOW HUB"
+header.TextColor3 = Color3.fromRGB(255, 0, 0)
+header.Font = Enum.Font.GothamBold
+header.TextSize = 24
 
-Title.Parent = Frame
-Title.Text = "SHADOW HUB"
-Title.Size = UDim2.new(1, 0, 0, 50)
-Title.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Title.TextColor3 = Color3.fromRGB(255, 0, 0)
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 24
+-- Bouton de fermeture
+local closeBtn = Instance.new("TextButton", frame)
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -35, 0, 5)
+closeBtn.Text = "X"
+closeBtn.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 18
 
--- Speed Button
-ButtonSpeed.Parent = Frame
-ButtonSpeed.Position = UDim2.new(0.1, 0, 0.3, 0)
-ButtonSpeed.Size = UDim2.new(0, 240, 0, 40)
-ButtonSpeed.Text = "Activer Super Vitesse"
-ButtonSpeed.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-ButtonSpeed.TextColor3 = Color3.fromRGB(255, 255, 255)
-ButtonSpeed.MouseButton1Click:Connect(function()
-    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 100
+-- Bouton pour rouvrir
+local reopenBtn = Instance.new("TextButton", gui)
+reopenBtn.Size = UDim2.new(0, 100, 0, 30)
+reopenBtn.Position = UDim2.new(0, 10, 0, 10)
+reopenBtn.Text = "SHADOW"
+reopenBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+reopenBtn.TextColor3 = Color3.fromRGB(255, 0, 0)
+reopenBtn.Font = Enum.Font.GothamBold
+reopenBtn.TextSize = 18
+reopenBtn.Visible = false
+
+-- Fermer la fenêtre
+closeBtn.MouseButton1Click:Connect(function()
+    frame.Visible = false
+    reopenBtn.Visible = true
 end)
 
--- Jump Button
-ButtonJump.Parent = Frame
-ButtonJump.Position = UDim2.new(0.1, 0, 0.5, 0)
-ButtonJump.Size = UDim2.new(0, 240, 0, 40)
-ButtonJump.Text = "Activer Super Saut"
-ButtonJump.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-ButtonJump.TextColor3 = Color3.fromRGB(255, 255, 255)
-ButtonJump.MouseButton1Click:Connect(function()
-    game.Players.LocalPlayer.Character.Humanoid.JumpPower = 150
+-- Rouvrir la fenêtre
+reopenBtn.MouseButton1Click:Connect(function()
+    frame.Visible = true
+    reopenBtn.Visible = false
 end)
 
--- Noclip Button
-ButtonNoclip.Parent = Frame
-ButtonNoclip.Position = UDim2.new(0.1, 0, 0.7, 0)
-ButtonNoclip.Size = UDim2.new(0, 240, 0, 40)
-ButtonNoclip.Text = "Activer Noclip"
-ButtonNoclip.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-ButtonNoclip.TextColor3 = Color3.fromRGB(255, 255, 255)
+-- Boutons de mods
+local speedBtn = Instance.new("TextButton", frame)
+speedBtn.Position = UDim2.new(0.1, 0, 0.3, 0)
+speedBtn.Size = UDim2.new(0, 240, 0, 40)
+speedBtn.Text = "Super Vitesse"
+speedBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+speedBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+speedBtn.MouseButton1Click:Connect(function()
+    player.Character.Humanoid.WalkSpeed = 100
+end)
+
+local jumpBtn = Instance.new("TextButton", frame)
+jumpBtn.Position = UDim2.new(0.1, 0, 0.5, 0)
+jumpBtn.Size = UDim2.new(0, 240, 0, 40)
+jumpBtn.Text = "Super Saut"
+jumpBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+jumpBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+jumpBtn.MouseButton1Click:Connect(function()
+    player.Character.Humanoid.JumpPower = 150
+end)
+
+local noclipBtn = Instance.new("TextButton", frame)
+noclipBtn.Position = UDim2.new(0.1, 0, 0.7, 0)
+noclipBtn.Size = UDim2.new(0, 240, 0, 40)
+noclipBtn.Text = "Noclip"
+noclipBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+noclipBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 
 local noclip = false
-ButtonNoclip.MouseButton1Click:Connect(function()
+noclipBtn.MouseButton1Click:Connect(function()
     noclip = not noclip
-    ButtonNoclip.Text = noclip and "Noclip: ON" or "Noclip: OFF"
+    noclipBtn.Text = noclip and "Noclip: ON" or "Noclip: OFF"
 end)
 
--- Noclip loop
 game:GetService("RunService").Stepped:Connect(function()
     if noclip then
-        for _, part in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+        for _, part in pairs(player.Character:GetDescendants()) do
             if part:IsA("BasePart") then
                 part.CanCollide = false
             end
