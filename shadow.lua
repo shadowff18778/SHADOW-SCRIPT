@@ -12,7 +12,7 @@ local camera = workspace.CurrentCamera
 local uis = game:GetService("UserInputService")
 local runService = game:GetService("RunService")
 
--- Création de la GUI
+-- GUI principale
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "ShadowHub"
 
@@ -29,7 +29,7 @@ for i = 1, 10 do
     wait(0.05)
 end
 
--- Header
+-- Header et boutons
 local header = Instance.new("Frame", frame)
 header.Size = UDim2.new(1, 0, 0, 40)
 header.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
@@ -43,7 +43,6 @@ title.Font = Enum.Font.GothamBold
 title.TextSize = 24
 title.BackgroundTransparency = 1
 
--- Boutons Settings et Fermer
 local settingsBtn = Instance.new("TextButton", header)
 settingsBtn.Size = UDim2.new(0, 30, 0, 30)
 settingsBtn.Position = UDim2.new(0, 5, 0, 5)
@@ -154,24 +153,26 @@ local function createButton(name, toggleVar, callback)
     buttonY = buttonY + spacing
 end
 
--- VOL créatif pour mobile
+-- VOL créatif mobile (flottant)
 createButton("Vol", "flyEnabled", function(state)
     local vertical = 0
     local speed = 60
 
-    -- Boutons virtuels pour monter/descendre
+    -- Boutons monter / descendre
     local upBtn = Instance.new("TextButton", gui)
-    upBtn.Size = UDim2.new(0, 50, 0, 50)
-    upBtn.Position = UDim2.new(0.8, 0, 0.7, 0)
+    upBtn.Size = UDim2.new(0, 60, 0, 60)
+    upBtn.Position = UDim2.new(0.85, 0, 0.7, 0)
     upBtn.Text = "↑"
+    upBtn.BackgroundTransparency = 0.5
     upBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
     upBtn.TextColor3 = Color3.fromRGB(255,255,255)
     upBtn.Visible = state
 
     local downBtn = Instance.new("TextButton", gui)
-    downBtn.Size = UDim2.new(0, 50, 0, 50)
-    downBtn.Position = UDim2.new(0.8, 0, 0.8, 0)
+    downBtn.Size = UDim2.new(0, 60, 0, 60)
+    downBtn.Position = UDim2.new(0.85, 0, 0.8, 0)
     downBtn.Text = "↓"
+    downBtn.BackgroundTransparency = 0.5
     downBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
     downBtn.TextColor3 = Color3.fromRGB(255,255,255)
     downBtn.Visible = state
@@ -191,7 +192,13 @@ createButton("Vol", "flyEnabled", function(state)
         end
 
         local moveDir = humanoid.MoveDirection
-        local moveVector = moveDir * speed + Vector3.new(0, vertical*speed, 0)
+        -- Faire face à la caméra
+        if moveDir.Magnitude > 0 then
+            hrp.CFrame = CFrame.new(hrp.Position, hrp.Position + camera.CFrame.LookVector)
+        end
+
+        -- Calcul du vecteur de mouvement
+        local moveVector = moveDir * speed + Vector3.new(0, vertical * speed, 0)
         hrp.CFrame = hrp.CFrame + moveVector * deltaTime
     end)
 end)
