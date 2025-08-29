@@ -1,13 +1,12 @@
 game.StarterGui:SetCore("SendNotification", {
     Title = "SHADOW HUB",
-    Text = "Chargement du mod... 😈",
+    Text = "Chargement du mod... Prépare-toi à dominer 😈",
     Duration = 5
 })
 
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local camera = workspace.CurrentCamera
-local uis = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
@@ -152,7 +151,8 @@ local function createButton(name, toggleVar, callback)
     buttonY = buttonY + spacing
 end
 
--- 🔥 Vol créatif mobile et PC
+-- 🔥 Vol créatif
+local flyConn
 createButton("Vol", "flyEnabled", function(state)
     local hrp = character:FindFirstChild("HumanoidRootPart")
     local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -163,29 +163,30 @@ createButton("Vol", "flyEnabled", function(state)
 
         local bv = Instance.new("BodyVelocity")
         bv.Name = "FlyVelocity"
-        bv.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+        bv.MaxForce = Vector3.new(1e5,1e5,1e5)
         bv.Velocity = Vector3.zero
         bv.Parent = hrp
 
         local bg = Instance.new("BodyGyro")
         bg.Name = "FlyGyro"
-        bg.MaxTorque = Vector3.new(1e5, 1e5, 1e5)
+        bg.MaxTorque = Vector3.new(1e5,1e5,1e5)
         bg.P = 1e4
         bg.CFrame = hrp.CFrame
         bg.Parent = hrp
 
-        local conn
-        conn = RunService.Heartbeat:Connect(function()
+        flyConn = RunService.Heartbeat:Connect(function()
             if not _G.flyEnabled then
-                conn:Disconnect()
-                bv:Destroy()
-                bg:Destroy()
+                flyConn:Disconnect()
+                if bv then bv:Destroy() end
+                if bg then bg:Destroy() end
                 humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
+                humanoid.JumpPower = _G.jumpEnabled and 150 or 50
                 return
             end
 
             local moveDir = humanoid.MoveDirection
             local camCF = camera.CFrame
+            bg.CFrame = CFrame.new(hrp.Position, hrp.Position + camCF.LookVector)
 
             if moveDir.Magnitude > 0 then
                 local move = (camCF.LookVector * moveDir.Z + camCF.RightVector * moveDir.X)
@@ -193,13 +194,11 @@ createButton("Vol", "flyEnabled", function(state)
             else
                 bv.Velocity = Vector3.zero
             end
-
-            bg.CFrame = CFrame.new(hrp.Position, hrp.Position + camCF.LookVector)
         end)
     else
-        local oldBV = character:FindFirstChild("HumanoidRootPart"):FindFirstChild("FlyVelocity")
+        local oldBV = hrp:FindFirstChild("FlyVelocity")
         if oldBV then oldBV:Destroy() end
-        local oldBG = character:FindFirstChild("HumanoidRootPart"):FindFirstChild("FlyGyro")
+        local oldBG = hrp:FindFirstChild("FlyGyro")
         if oldBG then oldBG:Destroy() end
         humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
         humanoid.JumpPower = _G.jumpEnabled and 150 or 50
@@ -219,39 +218,30 @@ end)
 -- 🧱 Noclip
 local noclipConn
 noclipConn = RunService.Stepped:Connect(function()
-    if _G.noclip then
-        for _, part in pairs(character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = false
-            end
-        end
-    else
-        for _, part in pairs(character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = true
-            end
+    for _, part in pairs(character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = not _G.noclip
         end
     end
 end)
 createButton("Noclip", "noclip", function(state)
-    -- rien de plus à faire, la connexion gère l'activation/désactivation
+    -- connexion gère automatiquement l'activation/désactivation
 end)
 
 -- 🌈 Animation texte
 local function animateColor(textLabel)
     spawn(function()
         while true do
-            for i = 0, 1, 0.01 do
+            for i = 0,1,0.01 do
                 textLabel.TextColor3 = Color3.fromRGB(math.floor(255*(1-i)),0,math.floor(255*i))
                 wait(0.05)
             end
-            for i = 0, 1, 0.01 do
+            for i = 0,1,0.01 do
                 textLabel.TextColor3 = Color3.fromRGB(math.floor(255*i),0,math.floor(255*(1-i)))
                 wait(0.05)
             end
         end
     end)
 end
-
 animateColor(title)
 animateColor(reopenBtn)
