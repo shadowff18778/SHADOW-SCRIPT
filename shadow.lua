@@ -192,6 +192,12 @@ local function animateColor(textLabel)
                 local r = math.floor(255 * i)
                 local b = math.floor(255 * (1 - i))
                 textLabel.TextColor3 = Color3.fromRGB(r, 0, b)
-                wait(0.05)
+                                wait(0.05)
             end
         end
+    end)
+end
+
+-- Appliquer l'animation au header et au bouton SHADOW
+animateColor(header)
+animateColor(reopenBtn)
