@@ -12,9 +12,9 @@ local uis = game:GetService("UserInputService")
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "ShadowHub"
 
--- Fenêtre principale (taille réduite)
+-- Fenêtre principale (ajustée)
 local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0, 320, 0, 250) -- 🔹 hauteur ajustée
+frame.Size = UDim2.new(0, 320, 0, 250)
 frame.Position = UDim2.new(0.5, -160, 0.5, -125)
 frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 frame.BorderSizePixel = 0
@@ -161,7 +161,7 @@ local function createButton(name, toggleVar, callback)
     buttonY = buttonY + spacing
 end
 
--- 🔥 VOL style Minecraft (mobile)
+-- 🔥 VOL style Minecraft (mobile & PC natif)
 createButton("Vol", "flyEnabled", function(state)
     local hrp = character:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
@@ -180,55 +180,23 @@ createButton("Vol", "flyEnabled", function(state)
                 return
             end
 
-            -- Déplacement basé sur la caméra
-            local move = Vector3.zero
-            if uis.TouchEnabled then
-                -- mobile : avance avec un bouton tactile spécial
-                move = camera.CFrame.LookVector * 50
+            -- Récupère la direction depuis le joystick/clavier
+            local moveDir = Vector3.zero
+            if character:FindFirstChildOfClass("Humanoid") then
+                moveDir = character:FindFirstChildOfClass("Humanoid").MoveDirection
             end
 
-            bv.Velocity = move
-        end)
-
-        -- 📱 Boutons tactiles pour monter/descendre
-        local upBtn = Instance.new("TextButton", gui)
-        upBtn.Size = UDim2.new(0, 60, 0, 60)
-        upBtn.Position = UDim2.new(1, -70, 0.5, -70)
-        upBtn.Text = "⬆️"
-        upBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-        upBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        upBtn.Font = Enum.Font.GothamBold
-        upBtn.TextSize = 24
-        upBtn.Visible = true
-
-        local downBtn = Instance.new("TextButton", gui)
-        downBtn.Size = UDim2.new(0, 60, 0, 60)
-        downBtn.Position = UDim2.new(1, -70, 0.5, 10)
-        downBtn.Text = "⬇️"
-        downBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-        downBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        downBtn.Font = Enum.Font.GothamBold
-        downBtn.TextSize = 24
-        downBtn.Visible = true
-
-        upBtn.MouseButton1Down:Connect(function()
-            bv.Velocity = camera.CFrame.UpVector * 50
-        end)
-        downBtn.MouseButton1Down:Connect(function()
-            bv.Velocity = -camera.CFrame.UpVector * 50
-        end)
-
-        table.insert(_G.cleanupFlyUI or {}, function()
-            upBtn:Destroy()
-            downBtn:Destroy()
+            -- Applique la direction relative à la caméra
+            if moveDir.Magnitude > 0 then
+                local camCF = camera.CFrame
+                bv.Velocity = (camCF.RightVector * moveDir.X + camCF.LookVector * moveDir.Z + Vector3.new(0, moveDir.Y, 0)) * 50
+            else
+                bv.Velocity = Vector3.zero
+            end
         end)
     else
         local oldBV = hrp:FindFirstChild("FlyVelocity")
         if oldBV then oldBV:Destroy() end
-        if _G.cleanupFlyUI then
-            for _, f in pairs(_G.cleanupFlyUI) do f() end
-            _G.cleanupFlyUI = {}
-        end
     end
 end)
 
