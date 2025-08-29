@@ -9,6 +9,7 @@ game.StarterGui:SetCore("SendNotification", {
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local camera = workspace.CurrentCamera
+local uis = game:GetService("UserInputService")
 
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "ShadowHub"
@@ -133,8 +134,12 @@ infoText.Text = string.format("👤 Nom : %s\n🆔 UserId : %d\n💎 Premium : %
     tostring(player.MembershipType == Enum.MembershipType.Premium),
     tostring(player.AccountAge)
 )
+-- Initialisation des variables globales
+_G.flyEnabled = false
+_G.speedEnabled = false
+_G.jumpEnabled = false
+_G.noclip = false
 
--- Boutons principaux
 local buttonY = 0.1
 local spacing = 0.15
 
@@ -157,42 +162,111 @@ local function createButton(name, toggleVar, callback)
     buttonY = buttonY + spacing
 end
 
-_G.flyEnabled = false
-_G.speedEnabled = false
-_G.jumpEnabled = false
-_G.noclip = false
-
+-- 🔥 VOL avec support mobile
 createButton("Vol", "flyEnabled", function(state)
-    local hrp = character:WaitForChild("HumanoidRootPart")
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
     if state then
-        local bv = Instance.new("BodyVelocity", hrp)
+        local bv = Instance.new("BodyVelocity")
         bv.Name = "FlyVelocity"
         bv.MaxForce = Vector3.new(1e5, 1e5, 1e5)
         bv.Velocity = Vector3.zero
+        bv.Parent = hrp
 
-        game:GetService("RunService").Heartbeat:Connect(function()
-            if _G.flyEnabled and bv and hrp then
-                bv.Velocity = camera.CFrame.LookVector * 50
-            elseif bv then
+        local bg = Instance.new("BodyGyro")
+        bg.Name = "FlyGyro"
+        bg.MaxTorque = Vector3.new(1e5, 1e5, 1e5)
+        bg.CFrame = camera.CFrame
+        bg.Parent = hrp
+
+        local moveDirection = Vector3.zero
+
+        local function updateMovement()
+            local move = Vector3.zero
+            move += uis:IsKeyDown(Enum.KeyCode.Space) and Vector3.new(0, 1, 0) or Vector3.zero
+            move -= uis:IsKeyDown(Enum.KeyCode.LeftControl) and Vector3.new(0, 1, 0) or Vector3.zero
+            move += uis:IsKeyDown(Enum.KeyCode.W) and camera.CFrame.LookVector or Vector3.zero
+            move -= uis:IsKeyDown(Enum.KeyCode.S) and camera.CFrame.LookVector or Vector3.zero
+            move += uis:IsKeyDown(Enum.KeyCode.A) and -camera.CFrame.RightVector or Vector3.zero
+            move += uis:IsKeyDown(Enum.KeyCode.D) and camera.CFrame.RightVector or Vector3.zero
+            moveDirection = move
+        end
+
+        local connInput = uis.InputBegan:Connect(updateMovement)
+        local connEnd = uis.InputEnded:Connect(updateMovement)
+
+        local conn = game:GetService("RunService").Heartbeat:Connect(function()
+            if not _G.flyEnabled then
+                conn:Disconnect()
+                connInput:Disconnect()
+                connEnd:Disconnect()
                 bv:Destroy()
+                bg:Destroy()
+                return
             end
+
+            bg.CFrame = camera.CFrame
+            bv.Velocity = moveDirection.Magnitude > 0 and moveDirection.Unit * 50 or Vector3.zero
+        end)
+
+        -- 📱 Boutons tactiles pour mobile
+        local upBtn = Instance.new("TextButton", gui)
+        upBtn.Size = UDim2.new(0, 60, 0, 60)
+        upBtn.Position = UDim2.new(1, -70, 0.5, -70)
+        upBtn.Text = "⬆️"
+        upBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        upBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        upBtn.Font = Enum.Font.GothamBold
+        upBtn.TextSize = 24
+        upBtn.Visible = true
+
+        local downBtn = Instance.new("TextButton", gui)
+        downBtn.Size = UDim2.new(0, 60, 0, 60)
+        downBtn.Position = UDim2.new(1, -70, 0.5, 10)
+        downBtn.Text = "⬇️"
+        downBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        downBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        downBtn.Font = Enum.Font.GothamBold
+        downBtn.TextSize = 24
+        downBtn.Visible = true
+
+        upBtn.MouseButton1Down:Connect(function()
+            moveDirection += Vector3.new(0, 1, 0)
+        end)
+        downBtn.MouseButton1Down:Connect(function()
+            moveDirection -= Vector3.new(0, 1, 0)
+        end)
+
+        -- Nettoyage des boutons quand vol désactivé
+        table.insert(_G.cleanupFlyUI or {}, function()
+            upBtn:Destroy()
+            downBtn:Destroy()
         end)
     else
-        local existing = hrp:FindFirstChild("FlyVelocity")
-        if existing then existing:Destroy() end
+        local oldBV = hrp:FindFirstChild("FlyVelocity")
+        local oldBG = hrp:FindFirstChild("FlyGyro")
+        if oldBV then oldBV:Destroy() end
+        if oldBG then oldBG:Destroy() end
+        if _G.cleanupFlyUI then
+            for _, f in pairs(_G.cleanupFlyUI) do f() end
+            _G.cleanupFlyUI = {}
+        end
     end
 end)
 
+-- ⚡ Vitesse
 createButton("Vitesse", "speedEnabled", function(state)
     character.Humanoid.WalkSpeed = state and 100 or 16
 end)
 
+-- 🦘 Saut
 createButton("Saut", "jumpEnabled", function(state)
     character.Humanoid.JumpPower = state and 150 or 50
 end)
 
+-- 🧱 Noclip
 createButton("Noclip", "noclip", function(state)
-    -- Noclip classique, sans désactivation forcée
     game:GetService("RunService").Stepped:Connect(function()
         if _G.noclip then
             for _, part in pairs(character:GetDescendants()) do
