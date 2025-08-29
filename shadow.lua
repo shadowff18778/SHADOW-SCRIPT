@@ -9,7 +9,6 @@ local character = player.Character or player.CharacterAdded:Wait()
 local hrp = character:WaitForChild("HumanoidRootPart")
 local humanoid = character:WaitForChild("Humanoid")
 local camera = workspace.CurrentCamera
-local uis = game:GetService("UserInputService")
 local runService = game:GetService("RunService")
 
 -- GUI principale
@@ -135,7 +134,7 @@ _G.noclip = false
 local buttonY = 0.1
 local spacing = 0.2
 
--- Fonction pour créer les boutons
+-- Création des boutons
 local function createButton(name, toggleVar, callback)
     local btn = Instance.new("TextButton", mainPage)
     btn.Position = UDim2.new(0.1, 0, buttonY, 0)
@@ -153,51 +152,29 @@ local function createButton(name, toggleVar, callback)
     buttonY = buttonY + spacing
 end
 
--- VOL créatif mobile (flottant)
+-- VOL classique style créatif (mobile, bouton saut)
 createButton("Vol", "flyEnabled", function(state)
-    local vertical = 0
     local speed = 60
-
-    -- Boutons monter / descendre
-    local upBtn = Instance.new("TextButton", gui)
-    upBtn.Size = UDim2.new(0, 60, 0, 60)
-    upBtn.Position = UDim2.new(0.85, 0, 0.7, 0)
-    upBtn.Text = "↑"
-    upBtn.BackgroundTransparency = 0.5
-    upBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
-    upBtn.TextColor3 = Color3.fromRGB(255,255,255)
-    upBtn.Visible = state
-
-    local downBtn = Instance.new("TextButton", gui)
-    downBtn.Size = UDim2.new(0, 60, 0, 60)
-    downBtn.Position = UDim2.new(0.85, 0, 0.8, 0)
-    downBtn.Text = "↓"
-    downBtn.BackgroundTransparency = 0.5
-    downBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
-    downBtn.TextColor3 = Color3.fromRGB(255,255,255)
-    downBtn.Visible = state
-
-    upBtn.MouseButton1Down:Connect(function() vertical = 1 end)
-    upBtn.MouseButton1Up:Connect(function() vertical = 0 end)
-    downBtn.MouseButton1Down:Connect(function() vertical = -1 end)
-    downBtn.MouseButton1Up:Connect(function() vertical = 0 end)
+    local vertical = 0
 
     local conn
     conn = runService.RenderStepped:Connect(function(deltaTime)
         if not _G.flyEnabled then
-            upBtn:Destroy()
-            downBtn:Destroy()
             conn:Disconnect()
             return
         end
 
+        -- Vérifier si le joueur appuie sur le bouton saut
+        vertical = humanoid:GetState() == Enum.HumanoidStateType.Jumping or humanoid.Jump
+        vertical = vertical and 1 or 0
+
+        -- Mouvement horizontal joystick
         local moveDir = humanoid.MoveDirection
-        -- Faire face à la caméra
         if moveDir.Magnitude > 0 then
             hrp.CFrame = CFrame.new(hrp.Position, hrp.Position + camera.CFrame.LookVector)
         end
 
-        -- Calcul du vecteur de mouvement
+        -- Calcul vecteur de mouvement
         local moveVector = moveDir * speed + Vector3.new(0, vertical * speed, 0)
         hrp.CFrame = hrp.CFrame + moveVector * deltaTime
     end)
