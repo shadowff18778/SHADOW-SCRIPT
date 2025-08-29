@@ -18,8 +18,8 @@ _G.speedEnabled = false
 _G.jumpEnabled = false
 _G.noclip = false
 _G.invisibleEnabled = false
-local buttonY = 0.1
-local spacing = 0.2
+local buttonY = 0.05
+local spacing = 0.07
 
 -- GUI principale
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
@@ -32,9 +32,8 @@ frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 frame.BorderSizePixel = 0
 frame.Active = true
 frame.Draggable = true
-frame.BackgroundTransparency = 0.2
 
--- ScrollingFrame pour défilement
+-- ScrollFrame pour défilement si beaucoup de boutons
 local scrollFrame = Instance.new("ScrollingFrame", frame)
 scrollFrame.Size = UDim2.new(1, 0, 1, -40)
 scrollFrame.Position = UDim2.new(0,0,0,40)
@@ -56,7 +55,6 @@ title.Font = Enum.Font.GothamBold
 title.TextSize = 24
 title.BackgroundTransparency = 1
 
--- Boutons settings et fermer
 local settingsBtn = Instance.new("TextButton", header)
 settingsBtn.Size = UDim2.new(0,30,0,30)
 settingsBtn.Position = UDim2.new(0,5,0,5)
@@ -94,9 +92,52 @@ reopenBtn.MouseButton1Click:Connect(function()
     reopenBtn.Visible = false
 end)
 
--- Fonction pour créer des boutons
+-- Pages (settings)
+local mainPage = scrollFrame
+local settingsPage = Instance.new("Frame", frame)
+settingsPage.Size = UDim2.new(1,0,1,-40)
+settingsPage.Position = UDim2.new(0,0,0,40)
+settingsPage.BackgroundTransparency = 1
+settingsPage.Visible = false
+
+local backBtn = Instance.new("TextButton", settingsPage)
+backBtn.Size = UDim2.new(0,100,0,30)
+backBtn.Position = UDim2.new(0.5,-50,1,-40)
+backBtn.Text = "← Retour"
+backBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+backBtn.TextColor3 = Color3.fromRGB(255,255,255)
+backBtn.Font = Enum.Font.GothamBold
+backBtn.TextSize = 18
+backBtn.MouseButton1Click:Connect(function()
+    settingsPage.Visible = false
+    mainPage.Visible = true
+end)
+settingsBtn.MouseButton1Click:Connect(function()
+    settingsPage.Visible = true
+    mainPage.Visible = false
+end)
+
+-- Infos joueur
+local infoText = Instance.new("TextLabel", settingsPage)
+infoText.Size = UDim2.new(1,-20,0,200)
+infoText.Position = UDim2.new(0,10,0,20)
+infoText.TextColor3 = Color3.fromRGB(200,200,200)
+infoText.TextWrapped = true
+infoText.TextYAlignment = Enum.TextYAlignment.Top
+infoText.TextXAlignment = Enum.TextXAlignment.Left
+infoText.Font = Enum.Font.Gotham
+infoText.TextSize = 18
+infoText.BackgroundTransparency = 1
+infoText.Text = string.format("👤 Nom : %s\n🆔 UserId : %d\n💎 Premium : %s\n📅 Ancienneté : %s jours",
+    player.Name,
+    player.UserId,
+    tostring(player.MembershipType == Enum.MembershipType.Premium),
+    tostring(player.AccountAge)
+)
+
+-- Fonction création bouton
 local function createButton(name, toggleVar, callback)
-    local btn = Instance.new("TextButton", scrollFrame)
+    local btn = Instance.new("TextButton", mainPage)
     btn.Position = UDim2.new(0.05,0,buttonY,0)
     btn.Size = UDim2.new(0.9,0,0,30)
     btn.Text = name..": OFF"
@@ -109,23 +150,22 @@ local function createButton(name, toggleVar, callback)
         btn.Text = name..(_G[toggleVar] and ": ON" or ": OFF")
         callback(_G[toggleVar])
     end)
-    buttonY = buttonY + 0.05
-    scrollFrame.CanvasSize = UDim2.new(0,0,0,buttonY*scrollFrame.AbsoluteSize.Y + 40)
+    buttonY = buttonY + spacing
+    mainPage.CanvasSize = UDim2.new(0,0,0,buttonY*frame.AbsoluteSize.Y + 40)
 end
 
--- VOL classique + multi saut
-createButton("Vol", "flyEnabled", function(state)
+-- Vol classique mobile + multi-saut
+createButton("Vol","flyEnabled",function(state)
+    local speed = 50
     local vertical = 0
-    local speed = 60
+    local maxJumps = 5
     local jumps = 0
-    local maxJumps = 5 -- multi-saut
-    humanoid.UseJumpPower = true
 
     local conn
     conn = runService.RenderStepped:Connect(function(deltaTime)
         if not _G.flyEnabled then conn:Disconnect() return end
 
-        -- Vérifie si le joueur appuie sur le bouton saut
+        -- Multi-saut et vol
         if humanoid:GetState() == Enum.HumanoidStateType.Jumping or humanoid.Jump then
             vertical = 1
             if jumps < maxJumps then
@@ -136,13 +176,12 @@ createButton("Vol", "flyEnabled", function(state)
             jumps = 0
         end
 
-        -- Direction joystick
         local moveDir = humanoid.MoveDirection
         if moveDir.Magnitude > 0 then
             hrp.CFrame = CFrame.new(hrp.Position, hrp.Position + camera.CFrame.LookVector)
         end
 
-        local moveVector = moveDir*speed + Vector3.new(0, vertical*speed,0)
+        local moveVector = moveDir*speed + Vector3.new(0,vertical*speed,0)
         hrp.CFrame = hrp.CFrame + moveVector*deltaTime
     end)
 end)
@@ -178,10 +217,10 @@ createButton("Noclip","noclip",function(state)
     end)
 end)
 
--- Invisibilité totale
+-- Invisibilité complète
 createButton("Invisible","invisibleEnabled",function(state)
     for _, part in pairs(character:GetDescendants()) do
-        if part:IsA("BasePart") or part:IsA("Decal") then
+        if part:IsA("BasePart") or part:IsA("Decal") or part:IsA("MeshPart") then
             part.Transparency = state and 1 or 0
             part.CanCollide = not state
         end
@@ -189,7 +228,7 @@ createButton("Invisible","invisibleEnabled",function(state)
     humanoid.NameDisplayDistance = state and 0 or 100
 end)
 
--- Animation rouge ↔ bleu
+-- Animation rouge/bleu
 local function animateColor(textLabel)
     spawn(function()
         while true do
