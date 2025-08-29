@@ -1,14 +1,19 @@
+-- =========================
+-- NOTIFICATION AU LANCEMENT
+-- =========================
 game.StarterGui:SetCore("SendNotification", {
     Title = "SHADOW HUB",
     Text = "Prépare-toi à dominer 😈",
     Duration = 5
 })
 
+-- =========================
+-- SERVICES & VARIABLES
+-- =========================
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local camera = workspace.CurrentCamera
 local RS = game:GetService("RunService")
-
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "ShadowHub"
 
@@ -53,7 +58,6 @@ submitBtn.Font = Enum.Font.GothamBold
 submitBtn.TextSize = 22
 Instance.new("UICorner", submitBtn).CornerRadius = UDim.new(0,12)
 
--- Loading stylé
 local loadingBarFrame = Instance.new("Frame", passPage)
 loadingBarFrame.Size = UDim2.new(0,300,0,20)
 loadingBarFrame.Position = UDim2.new(0.5,-150,0.85,0)
@@ -79,7 +83,7 @@ frame.Visible = false
 frame.ClipsDescendants = true
 Instance.new("UICorner", frame).CornerRadius = UDim.new(0,15)
 
--- Animation ouverture / fermeture
+-- Fonction animation ouverture / fermeture
 local function openFrame(f)
     f.Visible = true
     f.Size = UDim2.new(0,0,0,0)
@@ -97,7 +101,9 @@ local function closeFrame(f)
     f.Visible = false
 end
 
--- HEADER
+-- =========================
+-- HEADER ET BOUTONS
+-- =========================
 local header = Instance.new("Frame", frame)
 header.Size = UDim2.new(1,0,0,45)
 header.BackgroundColor3 = Color3.fromRGB(15,15,15)
@@ -112,7 +118,6 @@ title.Font = Enum.Font.GothamBold
 title.TextSize = 28
 title.BackgroundTransparency = 1
 
--- Boutons header
 local settingsBtn = Instance.new("TextButton", header)
 settingsBtn.Size = UDim2.new(0,35,0,35)
 settingsBtn.Position = UDim2.new(0,5,0,5)
@@ -144,7 +149,9 @@ reopenBtn.TextSize = 20
 reopenBtn.Visible = false
 Instance.new("UICorner", reopenBtn).CornerRadius = UDim.new(0,10)
 
+-- =========================
 -- PAGES
+-- =========================
 local mainPage = Instance.new("Frame", frame)
 mainPage.Size = UDim2.new(1,0,1,-45)
 mainPage.Position = UDim2.new(0,0,0,45)
@@ -162,38 +169,9 @@ infoPage.Position = UDim2.new(0,0,0,45)
 infoPage.BackgroundTransparency = 1
 infoPage.Visible = false
 
--- BACK BUTTON SETTINGS
-local backBtn = Instance.new("TextButton", settingsPage)
-backBtn.Size = UDim2.new(0,120,0,35)
-backBtn.Position = UDim2.new(0.5,-60,1,-50)
-backBtn.Text = "← Retour"
-backBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
-backBtn.TextColor3 = Color3.fromRGB(255,255,255)
-backBtn.Font = Enum.Font.GothamBold
-backBtn.TextSize = 20
-Instance.new("UICorner", backBtn).CornerRadius = UDim.new(0,10)
-
-backBtn.MouseButton1Click:Connect(function()
-    settingsPage.Visible = false
-    mainPage.Visible = true
-end)
-
-settingsBtn.MouseButton1Click:Connect(function()
-    settingsPage.Visible = true
-    mainPage.Visible = false
-end)
-
-closeBtn.MouseButton1Click:Connect(function()
-    closeFrame(frame)
-    reopenBtn.Visible = true
-end)
-
-reopenBtn.MouseButton1Click:Connect(function()
-    openFrame(frame)
-    reopenBtn.Visible = false
-end)
-
--- Signature RGB animé
+-- =========================
+-- SIGNATURE RGB
+-- =========================
 local signature = Instance.new("TextLabel", frame)
 signature.Size = UDim2.new(1,0,0,20)
 signature.Position = UDim2.new(0,0,1,-25)
@@ -214,13 +192,12 @@ spawn(function()
 end)
 
 -- =========================
--- VARIABLES GLOBALES
+-- BOUTONS CHEATS & FONCTIONS
 -- =========================
 _G.flyEnabled = false
 _G.speedEnabled = false
 _G.jumpEnabled = false
 _G.noclip = false
-
 local buttonY = 0.1
 local spacing = 0.18
 
@@ -235,7 +212,6 @@ local function createButton(name,toggleVar,callback)
     btn.TextSize = 20
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0,10)
 
-    -- Hover animation
     btn.MouseEnter:Connect(function()
         btn:TweenSize(UDim2.new(0,300,0,40),"Out","Quad",0.2,true)
         btn.BackgroundColor3 = Color3.fromRGB(70,70,70)
@@ -248,7 +224,6 @@ local function createButton(name,toggleVar,callback)
         _G[toggleVar] = not _G[toggleVar]
         btn.Text = name..(_G[toggleVar] and ": ON" or ": OFF")
         callback(_G[toggleVar])
-        -- Click animation
         btn:TweenSize(UDim2.new(0,270,0,30),"InOut","Quad",0.1,true,function()
             btn:TweenSize(UDim2.new(0,280,0,35),"InOut","Quad",0.1,true)
         end)
@@ -257,10 +232,7 @@ local function createButton(name,toggleVar,callback)
     buttonY = buttonY + spacing
 end
 
--- =========================
--- FONCTIONS CHEATS
--- =========================
--- Fly
+-- Fly, Speed, Jump, Noclip
 createButton("Vol","flyEnabled",function(state)
     local hrp = character:FindFirstChild("HumanoidRootPart")
     local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -306,17 +278,14 @@ createButton("Vol","flyEnabled",function(state)
     end
 end)
 
--- Speed
 createButton("Vitesse","speedEnabled",function(state)
     character.Humanoid.WalkSpeed = state and 100 or 16
 end)
 
--- Jump
 createButton("Saut","jumpEnabled",function(state)
     character.Humanoid.JumpPower = state and 150 or 50
 end)
 
--- Noclip
 createButton("Noclip","noclip",function(state)
     RS.Stepped:Connect(function()
         if _G.noclip then
@@ -341,7 +310,6 @@ infoBtn.TextColor3 = Color3.fromRGB(255,255,255)
 infoBtn.Font = Enum.Font.GothamBold
 infoBtn.TextSize = 20
 Instance.new("UICorner", infoBtn).CornerRadius = UDim.new(0,10)
-
 infoBtn.MouseButton1Click:Connect(function()
     settingsPage.Visible = false
     infoPage.Visible = true
@@ -361,7 +329,6 @@ backInfoBtn.MouseButton1Click:Connect(function()
     settingsPage.Visible = true
 end)
 
--- Infos joueurs affichage
 local infoText = Instance.new("TextLabel", infoPage)
 infoText.Size = UDim2.new(1,-40,1,-60)
 infoText.Position = UDim2.new(0,20,0,20)
@@ -373,7 +340,6 @@ infoText.Font = Enum.Font.Gotham
 infoText.TextSize = 18
 infoText.BackgroundTransparency = 1
 
--- Remplissage dynamique infos
 spawn(function()
     while true do
         local text = "👤 Joueurs dans le jeu :\n"
@@ -386,7 +352,7 @@ spawn(function()
 end)
 
 -- =========================
--- ANIMATIONS COULEUR TITRE & BOUTON SHADOW
+-- ANIMATION COULEUR TITRE & REOPEN
 -- =========================
 local function animateColor(textLabel)
     spawn(function()
@@ -402,7 +368,25 @@ animateColor(title)
 animateColor(reopenBtn)
 
 -- =========================
--- MOT DE PASSE VALIDATION
+-- INTERACTIONS BOUTONS
+-- =========================
+closeBtn.MouseButton1Click:Connect(function()
+    closeFrame(frame)
+    reopenBtn.Visible = true
+end)
+
+reopenBtn.MouseButton1Click:Connect(function()
+    reopenBtn.Visible = false
+    openFrame(frame)
+end)
+
+settingsBtn.MouseButton1Click:Connect(function()
+    mainPage.Visible = false
+    settingsPage.Visible = true
+end)
+
+-- =========================
+-- MOT DE PASSE + CHARGEMENT
 -- =========================
 submitBtn.MouseButton1Click:Connect(function()
     if passBox.Text == "95741" then
