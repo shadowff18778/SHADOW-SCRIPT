@@ -7,6 +7,7 @@ game.StarterGui:SetCore("SendNotification", {
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local camera = workspace.CurrentCamera
+local RS = game:GetService("RunService")
 
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "ShadowHub"
@@ -15,11 +16,13 @@ gui.Name = "ShadowHub"
 -- PAGE MOT DE PASSE
 -- =========================
 local passPage = Instance.new("Frame", gui)
-passPage.Size = UDim2.new(0, 400, 0, 300)
+passPage.Size = UDim2.new(0, 380, 0, 250)
 passPage.Position = UDim2.new(0.5,0,0.5,0)
 passPage.AnchorPoint = Vector2.new(0.5,0.5)
 passPage.BackgroundColor3 = Color3.fromRGB(25,25,25)
 Instance.new("UICorner", passPage).CornerRadius = UDim.new(0,15)
+passPage.ClipsDescendants = true
+passPage.Visible = true
 
 local passTitle = Instance.new("TextLabel", passPage)
 passTitle.Size = UDim2.new(1,-40,0,50)
@@ -27,7 +30,7 @@ passTitle.Position = UDim2.new(0,20,0,20)
 passTitle.Text = "Mot de passe requis"
 passTitle.TextColor3 = Color3.fromRGB(255,50,50)
 passTitle.Font = Enum.Font.GothamBold
-passTitle.TextSize = 28
+passTitle.TextSize = 26
 passTitle.BackgroundTransparency = 1
 
 local passBox = Instance.new("TextBox", passPage)
@@ -50,26 +53,50 @@ submitBtn.Font = Enum.Font.GothamBold
 submitBtn.TextSize = 22
 Instance.new("UICorner", submitBtn).CornerRadius = UDim.new(0,12)
 
-local loadingBar = Instance.new("Frame", passPage)
-loadingBar.Size = UDim2.new(0,0,0,20)
-loadingBar.Position = UDim2.new(0.5,-150,0.85,0)
+-- Loading stylé
+local loadingBarFrame = Instance.new("Frame", passPage)
+loadingBarFrame.Size = UDim2.new(0,300,0,20)
+loadingBarFrame.Position = UDim2.new(0.5,-150,0.85,0)
+loadingBarFrame.BackgroundColor3 = Color3.fromRGB(60,60,60)
+Instance.new("UICorner", loadingBarFrame).CornerRadius = UDim.new(0,10)
+loadingBarFrame.Visible = false
+
+local loadingBar = Instance.new("Frame", loadingBarFrame)
+loadingBar.Size = UDim2.new(0,0,1,0)
 loadingBar.BackgroundColor3 = Color3.fromRGB(255,0,0)
 Instance.new("UICorner", loadingBar).CornerRadius = UDim.new(0,10)
-loadingBar.Visible = false
 
 -- =========================
 -- FRAME PRINCIPALE
 -- =========================
 local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0,450,0,350)
+frame.Size = UDim2.new(0,400,0,300)
 frame.Position = UDim2.new(0.5,0,0.5,0)
 frame.AnchorPoint = Vector2.new(0.5,0.5)
 frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
 frame.BorderSizePixel = 0
-frame.Active = true
-frame.Draggable = true
 frame.Visible = false
+frame.ClipsDescendants = true
 Instance.new("UICorner", frame).CornerRadius = UDim.new(0,15)
+
+-- Animation ouverture
+local function openFrame(f)
+    f.Visible = true
+    f.Size = UDim2.new(0,0,0,0)
+    for i=0,1,0.05 do
+        f.Size = UDim2.new(0,400*i,0,300*i)
+        wait(0.01)
+    end
+end
+
+-- Animation fermeture
+local function closeFrame(f)
+    for i=1,0,-0.05 do
+        f.Size = UDim2.new(0,400*i,0,300*i)
+        wait(0.01)
+    end
+    f.Visible = false
+end
 
 -- HEADER
 local header = Instance.new("Frame", frame)
@@ -86,7 +113,7 @@ title.Font = Enum.Font.GothamBold
 title.TextSize = 28
 title.BackgroundTransparency = 1
 
--- BOUTONS HEADER
+-- Boutons
 local settingsBtn = Instance.new("TextButton", header)
 settingsBtn.Size = UDim2.new(0,35,0,35)
 settingsBtn.Position = UDim2.new(0,5,0,5)
@@ -152,13 +179,34 @@ settingsBtn.MouseButton1Click:Connect(function()
 end)
 
 closeBtn.MouseButton1Click:Connect(function()
-    frame.Visible = false
+    closeFrame(frame)
     reopenBtn.Visible = true
 end)
 
 reopenBtn.MouseButton1Click:Connect(function()
-    frame.Visible = true
+    openFrame(frame)
     reopenBtn.Visible = false
+end)
+
+-- Signature RGB
+local signature = Instance.new("TextLabel", frame)
+signature.Size = UDim2.new(1,0,0,20)
+signature.Position = UDim2.new(0,0,1,-25)
+signature.Text = "Powered by SHADOW"
+signature.Font = Enum.Font.GothamBold
+signature.TextSize = 16
+signature.TextColor3 = Color3.fromRGB(255,0,0)
+signature.BackgroundTransparency = 1
+signature.TextScaled = true
+
+-- Animation RGB signature
+spawn(function()
+    while true do
+        for i=0,1,0.01 do
+            signature.TextColor3 = Color3.fromHSV(i,1,1)
+            wait(0.02)
+        end
+    end
 end)
 
 -- Infos joueur
@@ -232,7 +280,7 @@ createButton("Vol","flyEnabled",function(state)
         bg.CFrame = hrp.CFrame
 
         local conn
-        conn = game:GetService("RunService").Heartbeat:Connect(function()
+        conn = RS.Heartbeat:Connect(function()
             if not _G.flyEnabled then
                 conn:Disconnect()
                 bv:Destroy()
@@ -273,7 +321,7 @@ end)
 
 -- Noclip
 createButton("Noclip","noclip",function(state)
-    game:GetService("RunService").Stepped:Connect(function()
+    RS.Stepped:Connect(function()
         if _G.noclip then
             for _,part in pairs(character:GetDescendants()) do
                 if part:IsA("BasePart") then
@@ -284,16 +332,12 @@ createButton("Noclip","noclip",function(state)
     end)
 end)
 
--- Animation rouge ↔ bleu
+-- Animation rouge ↔ bleu titre et bouton SHADOW
 local function animateColor(textLabel)
     spawn(function()
         while true do
             for i=0,1,0.01 do
-                textLabel.TextColor3 = Color3.fromRGB(math.floor(255*(1-i)),0,math.floor(255*i))
-                wait(0.03)
-            end
-            for i=0,1,0.01 do
-                textLabel.TextColor3 = Color3.fromRGB(math.floor(255*i),0,math.floor(255*(1-i)))
+                textLabel.TextColor3 = Color3.fromHSV(i,1,1)
                 wait(0.03)
             end
         end
@@ -308,15 +352,17 @@ animateColor(reopenBtn)
 -- =========================
 submitBtn.MouseButton1Click:Connect(function()
     if passBox.Text == "95741" then
-        loadingBar.Visible = true
+        loadingBarFrame.Visible = true
         for i=1,100 do
-            loadingBar.Size = UDim2.new(i/100,0,0,20)
-            wait(0.05)
+            loadingBar.Size = UDim2.new(i/100,0,1,0)
+            loadingBar.BackgroundColor3 = Color3.fromHSV(i/100,1,1)
+            wait(0.03)
         end
         passPage:Destroy()
-        frame.Visible = true
+        openFrame(frame)
     else
         passBox.Text = ""
         passBox.PlaceholderText = "Mot de passe incorrect"
     end
 end)
+
