@@ -9,6 +9,7 @@ game.StarterGui:SetCore("SendNotification", {
 
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
+local mouse = player:GetMouse()
 
 -- GUI Setup
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
@@ -16,7 +17,7 @@ gui.Name = "ShadowHub"
 
 -- Fenêtre principale
 local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0, 300, 0, 250)
+frame.Size = UDim2.new(0, 300, 0, 300)
 frame.Position = UDim2.new(0.3, 0, 0.3, 0)
 frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 frame.BorderSizePixel = 0
@@ -77,32 +78,50 @@ local jumpEnabled = false
 local noclip = false
 
 -- Placement propre
-local buttonY = 0.15
-local spacing = 0.15
+local buttonY = 0.25
+local spacing = 0.14
 
--- Bouton Vol
+-- Bouton Vol (Creative Mode)
 local flyBtn = Instance.new("TextButton", frame)
 flyBtn.Position = UDim2.new(0.1, 0, buttonY, 0)
 flyBtn.Size = UDim2.new(0, 240, 0, 30)
-flyBtn.Text = "Vol: OFF"
+flyBtn.Text = "Vol Créatif: OFF"
 flyBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 flyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 flyBtn.Font = Enum.Font.GothamBold
 flyBtn.TextSize = 18
 flyBtn.Parent = frame
 
+local flying = false
+local flySpeed = 3
+
 flyBtn.MouseButton1Click:Connect(function()
-    flyEnabled = not flyEnabled
-    flyBtn.Text = flyEnabled and "Vol: ON" or "Vol: OFF"
-    local root = character:FindFirstChild("HumanoidRootPart")
-    if flyEnabled then
-        local bp = Instance.new("BodyPosition", root)
-        bp.Name = "FlyBP"
-        bp.MaxForce = Vector3.new(0, math.huge, 0)
-        bp.Position = root.Position + Vector3.new(0, 50, 0)
-    else
-        local bp = root:FindFirstChild("FlyBP")
-        if bp then bp:Destroy() end
+    flying = not flying
+    flyBtn.Text = flying and "Vol Créatif: ON" or "Vol Créatif: OFF"
+    local hrp = character:WaitForChild("HumanoidRootPart")
+    local bv = hrp:FindFirstChild("FlyVelocity")
+    if not flying and bv then
+        bv:Destroy()
+    elseif flying and not bv then
+        local bodyVel = Instance.new("BodyVelocity", hrp)
+        bodyVel.Name = "FlyVelocity"
+        bodyVel.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+        bodyVel.Velocity = Vector3.zero
+
+        game:GetService("RunService").Heartbeat:Connect(function()
+            if flying and bodyVel.Parent then
+                local move = Vector3.zero
+                if mouse.KeyDown then
+                    if mouse:IsKeyDown("w") then move = move + workspace.CurrentCamera.CFrame.LookVector end
+                    if mouse:IsKeyDown("s") then move = move - workspace.CurrentCamera.CFrame.LookVector end
+                    if mouse:IsKeyDown("a") then move = move - workspace.CurrentCamera.CFrame.RightVector end
+                    if mouse:IsKeyDown("d") then move = move + workspace.CurrentCamera.CFrame.RightVector end
+                    if mouse:IsKeyDown("space") then move = move + Vector3.new(0, 1, 0) end
+                    if mouse:IsKeyDown("leftctrl") then move = move - Vector3.new(0, 1, 0) end
+                end
+                bodyVel.Velocity = move.Unit * flySpeed
+            end
+        end)
     end
 end)
 
@@ -186,5 +205,6 @@ local function animateColor(textLabel)
     end)
 end
 
+-- Appliquer l'animation au header et au bouton SHADOW
 animateColor(header)
 animateColor(reopenBtn)
