@@ -79,7 +79,7 @@ frame.Visible = false
 frame.ClipsDescendants = true
 Instance.new("UICorner", frame).CornerRadius = UDim.new(0,15)
 
--- Animation ouverture
+-- Animation ouverture / fermeture
 local function openFrame(f)
     f.Visible = true
     f.Size = UDim2.new(0,0,0,0)
@@ -89,7 +89,6 @@ local function openFrame(f)
     end
 end
 
--- Animation fermeture
 local function closeFrame(f)
     for i=1,0,-0.05 do
         f.Size = UDim2.new(0,400*i,0,300*i)
@@ -113,7 +112,7 @@ title.Font = Enum.Font.GothamBold
 title.TextSize = 28
 title.BackgroundTransparency = 1
 
--- Boutons
+-- Boutons header
 local settingsBtn = Instance.new("TextButton", header)
 settingsBtn.Size = UDim2.new(0,35,0,35)
 settingsBtn.Position = UDim2.new(0,5,0,5)
@@ -157,6 +156,12 @@ settingsPage.Position = UDim2.new(0,0,0,45)
 settingsPage.BackgroundTransparency = 1
 settingsPage.Visible = false
 
+local infoPage = Instance.new("Frame", frame)
+infoPage.Size = UDim2.new(1,0,1,-45)
+infoPage.Position = UDim2.new(0,0,0,45)
+infoPage.BackgroundTransparency = 1
+infoPage.Visible = false
+
 -- BACK BUTTON SETTINGS
 local backBtn = Instance.new("TextButton", settingsPage)
 backBtn.Size = UDim2.new(0,120,0,35)
@@ -188,7 +193,7 @@ reopenBtn.MouseButton1Click:Connect(function()
     reopenBtn.Visible = false
 end)
 
--- Signature RGB
+-- Signature RGB animé
 local signature = Instance.new("TextLabel", frame)
 signature.Size = UDim2.new(1,0,0,20)
 signature.Position = UDim2.new(0,0,1,-25)
@@ -199,7 +204,6 @@ signature.TextColor3 = Color3.fromRGB(255,0,0)
 signature.BackgroundTransparency = 1
 signature.TextScaled = true
 
--- Animation RGB signature
 spawn(function()
     while true do
         for i=0,1,0.01 do
@@ -208,24 +212,6 @@ spawn(function()
         end
     end
 end)
-
--- Infos joueur
-local infoText = Instance.new("TextLabel", settingsPage)
-infoText.Size = UDim2.new(1,-40,0,200)
-infoText.Position = UDim2.new(0,20,0,20)
-infoText.TextColor3 = Color3.fromRGB(200,200,200)
-infoText.TextWrapped = true
-infoText.TextYAlignment = Enum.TextYAlignment.Top
-infoText.TextXAlignment = Enum.TextXAlignment.Left
-infoText.Font = Enum.Font.Gotham
-infoText.TextSize = 18
-infoText.BackgroundTransparency = 1
-infoText.Text = string.format("👤 Nom : %s\n🆔 UserId : %d\n💎 Premium : %s\n📅 Ancienneté : %s jours",
-    player.Name,
-    player.UserId,
-    tostring(player.MembershipType == Enum.MembershipType.Premium),
-    tostring(player.AccountAge)
-)
 
 -- =========================
 -- VARIABLES GLOBALES
@@ -249,24 +235,36 @@ local function createButton(name,toggleVar,callback)
     btn.TextSize = 20
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0,10)
 
+    -- Hover animation
+    btn.MouseEnter:Connect(function()
+        btn:TweenSize(UDim2.new(0,300,0,40),"Out","Quad",0.2,true)
+        btn.BackgroundColor3 = Color3.fromRGB(70,70,70)
+    end)
+    btn.MouseLeave:Connect(function()
+        btn:TweenSize(UDim2.new(0,280,0,35),"Out","Quad",0.2,true)
+        btn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+    end)
     btn.MouseButton1Click:Connect(function()
         _G[toggleVar] = not _G[toggleVar]
         btn.Text = name..(_G[toggleVar] and ": ON" or ": OFF")
         callback(_G[toggleVar])
+        -- Click animation
+        btn:TweenSize(UDim2.new(0,270,0,30),"InOut","Quad",0.1,true,function()
+            btn:TweenSize(UDim2.new(0,280,0,35),"InOut","Quad",0.1,true)
+        end)
     end)
 
     buttonY = buttonY + spacing
 end
 
 -- =========================
--- FONCTIONS CHEAT (inchangées)
+-- FONCTIONS CHEATS
 -- =========================
 -- Fly
 createButton("Vol","flyEnabled",function(state)
     local hrp = character:FindFirstChild("HumanoidRootPart")
     local humanoid = character:FindFirstChildOfClass("Humanoid")
     if not hrp or not humanoid then return end
-
     if state then
         humanoid:ChangeState(Enum.HumanoidStateType.Physics)
         local bv = Instance.new("BodyVelocity",hrp)
@@ -278,7 +276,6 @@ createButton("Vol","flyEnabled",function(state)
         bg.MaxTorque = Vector3.new(1e5,1e5,1e5)
         bg.P = 1e4
         bg.CFrame = hrp.CFrame
-
         local conn
         conn = RS.Heartbeat:Connect(function()
             if not _G.flyEnabled then
@@ -332,7 +329,65 @@ createButton("Noclip","noclip",function(state)
     end)
 end)
 
--- Animation rouge ↔ bleu titre et bouton SHADOW
+-- =========================
+-- PAGE INFOS JOUEURS
+-- =========================
+local infoBtn = Instance.new("TextButton", settingsPage)
+infoBtn.Size = UDim2.new(0,180,0,35)
+infoBtn.Position = UDim2.new(0.5,-90,0.2,0)
+infoBtn.Text = "Infos Joueurs"
+infoBtn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+infoBtn.TextColor3 = Color3.fromRGB(255,255,255)
+infoBtn.Font = Enum.Font.GothamBold
+infoBtn.TextSize = 20
+Instance.new("UICorner", infoBtn).CornerRadius = UDim.new(0,10)
+
+infoBtn.MouseButton1Click:Connect(function()
+    settingsPage.Visible = false
+    infoPage.Visible = true
+end)
+
+local backInfoBtn = Instance.new("TextButton", infoPage)
+backInfoBtn.Size = UDim2.new(0,120,0,35)
+backInfoBtn.Position = UDim2.new(0.5,-60,1,-50)
+backInfoBtn.Text = "← Retour"
+backInfoBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+backInfoBtn.TextColor3 = Color3.fromRGB(255,255,255)
+backInfoBtn.Font = Enum.Font.GothamBold
+backInfoBtn.TextSize = 20
+Instance.new("UICorner", backInfoBtn).CornerRadius = UDim.new(0,10)
+backInfoBtn.MouseButton1Click:Connect(function()
+    infoPage.Visible = false
+    settingsPage.Visible = true
+end)
+
+-- Infos joueurs affichage
+local infoText = Instance.new("TextLabel", infoPage)
+infoText.Size = UDim2.new(1,-40,1,-60)
+infoText.Position = UDim2.new(0,20,0,20)
+infoText.TextColor3 = Color3.fromRGB(200,200,200)
+infoText.TextWrapped = true
+infoText.TextYAlignment = Enum.TextYAlignment.Top
+infoText.TextXAlignment = Enum.TextXAlignment.Left
+infoText.Font = Enum.Font.Gotham
+infoText.TextSize = 18
+infoText.BackgroundTransparency = 1
+
+-- Remplissage dynamique infos
+spawn(function()
+    while true do
+        local text = "👤 Joueurs dans le jeu :\n"
+        for i,plr in pairs(game.Players:GetPlayers()) do
+            text = text..string.format("%d. %s | Robux: %s\n",i,plr.Name,plr:GetRobuxBalance and plr:GetRobuxBalance() or "N/A")
+        end
+        infoText.Text = text
+        wait(1)
+    end
+end)
+
+-- =========================
+-- ANIMATIONS COULEUR TITRE & BOUTON SHADOW
+-- =========================
 local function animateColor(textLabel)
     spawn(function()
         while true do
@@ -343,7 +398,6 @@ local function animateColor(textLabel)
         end
     end)
 end
-
 animateColor(title)
 animateColor(reopenBtn)
 
@@ -365,4 +419,3 @@ submitBtn.MouseButton1Click:Connect(function()
         passBox.PlaceholderText = "Mot de passe incorrect"
     end
 end)
-
