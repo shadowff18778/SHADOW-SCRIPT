@@ -1,6 +1,5 @@
 -- SHADOW HUB [SUPPORT ALL EXECUTOR]
 
--- Notification d'intro
 game.StarterGui:SetCore("SendNotification", {
     Title = "SHADOW HUB",
     Text = "Chargement du mod... Prépare-toi à dominer 😈",
@@ -11,37 +10,40 @@ local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local camera = workspace.CurrentCamera
 
--- GUI Setup
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "ShadowHub"
 
 -- Fenêtre principale
 local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0, 300, 0, 320)
-frame.Position = UDim2.new(0.5, -150, 0.5, -160)
-frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+frame.Size = UDim2.new(0, 320, 0, 360)
+frame.Position = UDim2.new(0.5, -160, 0.5, -180)
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 frame.BorderSizePixel = 0
 frame.Active = true
 frame.Draggable = true
 frame.BackgroundTransparency = 1
 
--- Animation d'ouverture
 for i = 1, 10 do
     frame.BackgroundTransparency = 1 - (i * 0.1)
     wait(0.05)
 end
 
 -- Header
-local header = Instance.new("TextLabel", frame)
+local header = Instance.new("Frame", frame)
 header.Size = UDim2.new(1, 0, 0, 40)
 header.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-header.Text = "SHADOW HUB"
-header.TextColor3 = Color3.fromRGB(255, 0, 0)
-header.Font = Enum.Font.GothamBold
-header.TextSize = 24
 
--- Bouton Settings à gauche
-local settingsBtn = Instance.new("TextButton", frame)
+local title = Instance.new("TextLabel", header)
+title.Size = UDim2.new(1, -80, 1, 0)
+title.Position = UDim2.new(0, 40, 0, 0)
+title.Text = "SHADOW HUB"
+title.TextColor3 = Color3.fromRGB(255, 0, 0)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 24
+title.BackgroundTransparency = 1
+
+-- Bouton Settings
+local settingsBtn = Instance.new("TextButton", header)
 settingsBtn.Size = UDim2.new(0, 30, 0, 30)
 settingsBtn.Position = UDim2.new(0, 5, 0, 5)
 settingsBtn.Text = "⚙️"
@@ -50,8 +52,8 @@ settingsBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 settingsBtn.Font = Enum.Font.GothamBold
 settingsBtn.TextSize = 18
 
--- Bouton de fermeture à droite
-local closeBtn = Instance.new("TextButton", frame)
+-- Bouton Fermer
+local closeBtn = Instance.new("TextButton", header)
 closeBtn.Size = UDim2.new(0, 30, 0, 30)
 closeBtn.Position = UDim2.new(1, -35, 0, 5)
 closeBtn.Text = "X"
@@ -60,7 +62,7 @@ closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 closeBtn.Font = Enum.Font.GothamBold
 closeBtn.TextSize = 18
 
--- Bouton pour rouvrir
+-- Bouton Réouverture
 local reopenBtn = Instance.new("TextButton", gui)
 reopenBtn.Size = UDim2.new(0, 100, 0, 30)
 reopenBtn.Position = UDim2.new(0, 10, 0, 10)
@@ -81,25 +83,42 @@ reopenBtn.MouseButton1Click:Connect(function()
     reopenBtn.Visible = false
 end)
 
--- Page Settings
-local settingsPage = Instance.new("Frame", gui)
-settingsPage.Size = UDim2.new(0, 280, 0, 200)
-settingsPage.Position = UDim2.new(0.5, -140, 0.5, -100)
-settingsPage.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+-- Pages
+local mainPage = Instance.new("Frame", frame)
+mainPage.Size = UDim2.new(1, 0, 1, -40)
+mainPage.Position = UDim2.new(0, 0, 0, 40)
+mainPage.BackgroundTransparency = 1
+
+local settingsPage = Instance.new("Frame", frame)
+settingsPage.Size = UDim2.new(1, 0, 1, -40)
+settingsPage.Position = UDim2.new(0, 0, 0, 40)
+settingsPage.BackgroundTransparency = 1
 settingsPage.Visible = false
-settingsPage.BorderSizePixel = 0
 
-local infoTitle = Instance.new("TextLabel", settingsPage)
-infoTitle.Size = UDim2.new(1, 0, 0, 40)
-infoTitle.Text = "👤 Infos Joueur"
-infoTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-infoTitle.Font = Enum.Font.GothamBold
-infoTitle.TextScaled = true
-infoTitle.BackgroundTransparency = 1
+-- Retour vers main
+local backBtn = Instance.new("TextButton", settingsPage)
+backBtn.Size = UDim2.new(0, 100, 0, 30)
+backBtn.Position = UDim2.new(0.5, -50, 1, -40)
+backBtn.Text = "← Retour"
+backBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+backBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+backBtn.Font = Enum.Font.GothamBold
+backBtn.TextSize = 18
 
+backBtn.MouseButton1Click:Connect(function()
+    settingsPage.Visible = false
+    mainPage.Visible = true
+end)
+
+settingsBtn.MouseButton1Click:Connect(function()
+    settingsPage.Visible = true
+    mainPage.Visible = false
+end)
+
+-- Infos joueur
 local infoText = Instance.new("TextLabel", settingsPage)
-infoText.Size = UDim2.new(1, -20, 0, 140)
-infoText.Position = UDim2.new(0, 10, 0, 50)
+infoText.Size = UDim2.new(1, -20, 0, 200)
+infoText.Position = UDim2.new(0, 10, 0, 20)
 infoText.TextColor3 = Color3.fromRGB(200, 200, 200)
 infoText.TextWrapped = true
 infoText.TextYAlignment = Enum.TextYAlignment.Top
@@ -108,133 +127,81 @@ infoText.Font = Enum.Font.Gotham
 infoText.TextSize = 18
 infoText.BackgroundTransparency = 1
 
-infoText.Text = string.format("Nom : %s\nUserId : %d\nPremium : %s\nAncienneté : %s jours",
+infoText.Text = string.format("👤 Nom : %s\n🆔 UserId : %d\n💎 Premium : %s\n📅 Ancienneté : %s jours",
     player.Name,
     player.UserId,
     tostring(player.MembershipType == Enum.MembershipType.Premium),
     tostring(player.AccountAge)
 )
 
-settingsBtn.MouseButton1Click:Connect(function()
-    settingsPage.Visible = not settingsPage.Visible
-end)
-
--- Variables de toggle
-local flyEnabled = false
-local speedEnabled = false
-local jumpEnabled = false
-local noclip = false
-local noclipConnection
-
--- Placement propre
-local buttonY = 0.2
+-- Boutons principaux
+local buttonY = 0.1
 local spacing = 0.15
 
--- Bouton Vol
-local flyBtn = Instance.new("TextButton", frame)
-flyBtn.Position = UDim2.new(0.1, 0, buttonY, 0)
-flyBtn.Size = UDim2.new(0, 240, 0, 30)
-flyBtn.Text = "Vol: OFF"
-flyBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-flyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-flyBtn.Font = Enum.Font.GothamBold
-flyBtn.TextSize = 18
+local function createButton(name, toggleVar, callback)
+    local btn = Instance.new("TextButton", mainPage)
+    btn.Position = UDim2.new(0.1, 0, buttonY, 0)
+    btn.Size = UDim2.new(0, 240, 0, 30)
+    btn.Text = name .. ": OFF"
+    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 18
 
-local bodyVel = nil
+    btn.MouseButton1Click:Connect(function()
+        _G[toggleVar] = not _G[toggleVar]
+        btn.Text = name .. (_G[toggleVar] and ": ON" or ": OFF")
+        callback(_G[toggleVar])
+    end)
 
-flyBtn.MouseButton1Click:Connect(function()
-    flyEnabled = not flyEnabled
-    flyBtn.Text = flyEnabled and "Vol: ON" or "Vol: OFF"
+    buttonY = buttonY + spacing
+end
+
+_G.flyEnabled = false
+_G.speedEnabled = false
+_G.jumpEnabled = false
+_G.noclip = false
+
+createButton("Vol", "flyEnabled", function(state)
     local hrp = character:WaitForChild("HumanoidRootPart")
-
-    if flyEnabled then
-        bodyVel = Instance.new("BodyVelocity", hrp)
-        bodyVel.Name = "FlyVelocity"
-        bodyVel.MaxForce = Vector3.new(1e5, 1e5, 1e5)
-        bodyVel.Velocity = Vector3.zero
+    if state then
+        local bv = Instance.new("BodyVelocity", hrp)
+        bv.Name = "FlyVelocity"
+        bv.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+        bv.Velocity = Vector3.zero
 
         game:GetService("RunService").Heartbeat:Connect(function()
-            if flyEnabled and bodyVel and hrp then
-                local direction = camera.CFrame.LookVector
-                bodyVel.Velocity = direction * 50
-            elseif bodyVel then
-                bodyVel:Destroy()
+            if _G.flyEnabled and bv and hrp then
+                bv.Velocity = camera.CFrame.LookVector * 50
+            elseif bv then
+                bv:Destroy()
             end
         end)
-    elseif bodyVel then
-        bodyVel:Destroy()
+    else
+        local existing = hrp:FindFirstChild("FlyVelocity")
+        if existing then existing:Destroy() end
     end
 end)
-flyBtn.Parent = frame
 
--- Bouton Vitesse
-local speedBtn = Instance.new("TextButton", frame)
-speedBtn.Position = UDim2.new(0.1, 0, buttonY + spacing, 0)
-speedBtn.Size = UDim2.new(0, 240, 0, 30)
-speedBtn.Text = "Vitesse: OFF"
-speedBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-speedBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-speedBtn.Font = Enum.Font.GothamBold
-speedBtn.TextSize = 18
-speedBtn.Parent = frame
-
-speedBtn.MouseButton1Click:Connect(function()
-    speedEnabled = not speedEnabled
-    speedBtn.Text = speedEnabled and "Vitesse: ON" or "Vitesse: OFF"
-    character.Humanoid.WalkSpeed = speedEnabled and 100 or 16
+createButton("Vitesse", "speedEnabled", function(state)
+    character.Humanoid.WalkSpeed = state and 100 or 16
 end)
 
--- Bouton Saut
-local jumpBtn = Instance.new("TextButton", frame)
-jumpBtn.Position = UDim2.new(0.1, 0, buttonY + spacing * 2, 0)
-jumpBtn.Size = UDim2.new(0, 240, 0, 30)
-jumpBtn.Text = "Saut: OFF"
-jumpBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-jumpBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-jumpBtn.Font = Enum.Font.Gotham
-jumpBtn.TextSize = 18
-jumpBtn.Parent = frame
-
-jumpBtn.MouseButton1Click:Connect(function()
-    jumpEnabled = not jumpEnabled
-    jumpBtn.Text = jumpEnabled and "Saut: ON" or "Saut: OFF"
-    character.Humanoid.JumpPower = jumpEnabled and 150 or 50
+createButton("Saut", "jumpEnabled", function(state)
+    character.Humanoid.JumpPower = state and 150 or 50
 end)
 
--- Bouton Noclip
-local noclipBtn = Instance.new("TextButton", frame)
-noclipBtn.Position = UDim2.new(0.1, 0, buttonY + spacing * 3, 0)
-noclipBtn.Size = UDim2.new(0, 240, 0, 30)
-noclipBtn.Text = "Noclip: OFF"
-noclipBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-noclipBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-noclipBtn.Font = Enum.Font.GothamBold
-noclipBtn.TextSize = 18
-noclipBtn.Parent = frame
-
-local noclipConnection = nil
-
-noclipBtn.MouseButton1Click:Connect(function()
-    noclip = not noclip
-    noclipBtn.Text = noclip and "Noclip: ON" or "Noclip: OFF"
-
-    if noclip and not noclipConnection then
-        noclipConnection = game:GetService("RunService").Stepped:Connect(function()
+createButton("Noclip", "noclip", function(state)
+    -- Noclip classique, sans désactivation forcée
+    game:GetService("RunService").Stepped:Connect(function()
+        if _G.noclip then
             for _, part in pairs(character:GetDescendants()) do
                 if part:IsA("BasePart") then
                     part.CanCollide = false
                 end
             end
-        end)
-    elseif not noclip and noclipConnection then
-        noclipConnection:Disconnect()
-        noclipConnection = nil
-        for _, part in pairs(character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = true
-            end
         end
-    end
+    end)
 end)
 
 -- 🌈 Animation rouge ↔ bleu (header + bouton SHADOW)
@@ -257,5 +224,5 @@ local function animateColor(textLabel)
     end)
 end
 
-animateColor(header)
+animateColor(title)
 animateColor(reopenBtn)
