@@ -9,10 +9,19 @@ local character = player.Character or player.CharacterAdded:Wait()
 local camera = workspace.CurrentCamera
 local RunService = game:GetService("RunService")
 
+-- Variables globales
+_G.flyEnabled = false
+_G.speedEnabled = false
+_G.jumpEnabled = false
+_G.noclip = false
+
+local defaultWalkSpeed = 16
+local defaultJumpPower = 50
+
+-- GUI
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "ShadowHub"
 
--- Fenêtre principale
 local frame = Instance.new("Frame", gui)
 frame.Size = UDim2.new(0, 320, 0, 250)
 frame.Position = UDim2.new(0.5, -160, 0.5, -125)
@@ -28,43 +37,43 @@ end
 
 -- Header
 local header = Instance.new("Frame", frame)
-header.Size = UDim2.new(1, 0, 0, 40)
-header.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+header.Size = UDim2.new(1,0,0,40)
+header.BackgroundColor3 = Color3.fromRGB(0,0,0)
 
 local title = Instance.new("TextLabel", header)
-title.Size = UDim2.new(1, -80, 1, 0)
-title.Position = UDim2.new(0, 40, 0, 0)
+title.Size = UDim2.new(1,-80,1,0)
+title.Position = UDim2.new(0,40,0,0)
 title.Text = "SHADOW HUB"
-title.TextColor3 = Color3.fromRGB(255, 0, 0)
+title.TextColor3 = Color3.fromRGB(255,0,0)
 title.Font = Enum.Font.GothamBold
 title.TextSize = 24
 title.BackgroundTransparency = 1
 
 -- Boutons
 local settingsBtn = Instance.new("TextButton", header)
-settingsBtn.Size = UDim2.new(0, 30, 0, 30)
-settingsBtn.Position = UDim2.new(0, 5, 0, 5)
+settingsBtn.Size = UDim2.new(0,30,0,30)
+settingsBtn.Position = UDim2.new(0,5,0,5)
 settingsBtn.Text = "⚙️"
-settingsBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-settingsBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+settingsBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+settingsBtn.TextColor3 = Color3.fromRGB(255,255,255)
 settingsBtn.Font = Enum.Font.GothamBold
 settingsBtn.TextSize = 18
 
 local closeBtn = Instance.new("TextButton", header)
-closeBtn.Size = UDim2.new(0, 30, 0, 30)
-closeBtn.Position = UDim2.new(1, -35, 0, 5)
+closeBtn.Size = UDim2.new(0,30,0,30)
+closeBtn.Position = UDim2.new(1,-35,0,5)
 closeBtn.Text = "X"
-closeBtn.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
-closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeBtn.BackgroundColor3 = Color3.fromRGB(100,0,0)
+closeBtn.TextColor3 = Color3.fromRGB(255,255,255)
 closeBtn.Font = Enum.Font.GothamBold
 closeBtn.TextSize = 18
 
 local reopenBtn = Instance.new("TextButton", gui)
-reopenBtn.Size = UDim2.new(0, 100, 0, 30)
-reopenBtn.Position = UDim2.new(0, 10, 0, 10)
+reopenBtn.Size = UDim2.new(0,100,0,30)
+reopenBtn.Position = UDim2.new(0,10,0,10)
 reopenBtn.Text = "SHADOW"
-reopenBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-reopenBtn.TextColor3 = Color3.fromRGB(255, 0, 0)
+reopenBtn.BackgroundColor3 = Color3.fromRGB(0,0,0)
+reopenBtn.TextColor3 = Color3.fromRGB(255,0,0)
 reopenBtn.Font = Enum.Font.GothamBold
 reopenBtn.TextSize = 18
 reopenBtn.Visible = false
@@ -80,22 +89,22 @@ end)
 
 -- Pages
 local mainPage = Instance.new("Frame", frame)
-mainPage.Size = UDim2.new(1, 0, 1, -40)
-mainPage.Position = UDim2.new(0, 0, 0, 40)
+mainPage.Size = UDim2.new(1,0,1,-40)
+mainPage.Position = UDim2.new(0,0,0,40)
 mainPage.BackgroundTransparency = 1
 
 local settingsPage = Instance.new("Frame", frame)
-settingsPage.Size = UDim2.new(1, 0, 1, -40)
-settingsPage.Position = UDim2.new(0, 0, 0, 40)
+settingsPage.Size = UDim2.new(1,0,1,-40)
+settingsPage.Position = UDim2.new(0,0,0,40)
 settingsPage.BackgroundTransparency = 1
 settingsPage.Visible = false
 
 local backBtn = Instance.new("TextButton", settingsPage)
-backBtn.Size = UDim2.new(0, 100, 0, 30)
-backBtn.Position = UDim2.new(0.5, -50, 1, -40)
+backBtn.Size = UDim2.new(0,100,0,30)
+backBtn.Position = UDim2.new(0.5,-50,1,-40)
 backBtn.Text = "← Retour"
-backBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-backBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+backBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+backBtn.TextColor3 = Color3.fromRGB(255,255,255)
 backBtn.Font = Enum.Font.GothamBold
 backBtn.TextSize = 18
 backBtn.MouseButton1Click:Connect(function()
@@ -109,9 +118,9 @@ end)
 
 -- Infos joueur
 local infoText = Instance.new("TextLabel", settingsPage)
-infoText.Size = UDim2.new(1, -20, 0, 200)
-infoText.Position = UDim2.new(0, 10, 0, 20)
-infoText.TextColor3 = Color3.fromRGB(200, 200, 200)
+infoText.Size = UDim2.new(1,-20,0,200)
+infoText.Position = UDim2.new(0,10,0,20)
+infoText.TextColor3 = Color3.fromRGB(200,200,200)
 infoText.TextWrapped = true
 infoText.TextYAlignment = Enum.TextYAlignment.Top
 infoText.TextXAlignment = Enum.TextXAlignment.Left
@@ -125,22 +134,17 @@ infoText.Text = string.format("👤 Nom : %s\n🆔 UserId : %d\n💎 Premium : %
     tostring(player.AccountAge)
 )
 
--- Variables globales
-_G.flyEnabled = false
-_G.speedEnabled = false
-_G.jumpEnabled = false
-_G.noclip = false
-
+-- Boutons fonctionnels
 local buttonY = 0.1
 local spacing = 0.2
 
 local function createButton(name, toggleVar, callback)
     local btn = Instance.new("TextButton", mainPage)
-    btn.Position = UDim2.new(0.1, 0, buttonY, 0)
-    btn.Size = UDim2.new(0, 240, 0, 30)
+    btn.Position = UDim2.new(0.1,0,buttonY,0)
+    btn.Size = UDim2.new(0,240,0,30)
     btn.Text = name .. ": OFF"
-    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+    btn.TextColor3 = Color3.fromRGB(255,255,255)
     btn.Font = Enum.Font.GothamBold
     btn.TextSize = 18
     btn.MouseButton1Click:Connect(function()
@@ -160,6 +164,7 @@ createButton("Vol", "flyEnabled", function(state)
 
     if state then
         humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+        humanoid.JumpPower = defaultJumpPower -- maintien du saut même en vol
 
         local bv = Instance.new("BodyVelocity")
         bv.Name = "FlyVelocity"
@@ -180,10 +185,9 @@ createButton("Vol", "flyEnabled", function(state)
                 if bv then bv:Destroy() end
                 if bg then bg:Destroy() end
                 humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
-                humanoid.JumpPower = _G.jumpEnabled and 150 or 50
+                humanoid.JumpPower = _G.jumpEnabled and 150 or defaultJumpPower
                 return
             end
-
             local moveDir = humanoid.MoveDirection
             local camCF = camera.CFrame
             bg.CFrame = CFrame.new(hrp.Position, hrp.Position + camCF.LookVector)
@@ -201,18 +205,18 @@ createButton("Vol", "flyEnabled", function(state)
         local oldBG = hrp:FindFirstChild("FlyGyro")
         if oldBG then oldBG:Destroy() end
         humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
-        humanoid.JumpPower = _G.jumpEnabled and 150 or 50
+        humanoid.JumpPower = _G.jumpEnabled and 150 or defaultJumpPower
     end
 end)
 
 -- ⚡ Vitesse
 createButton("Vitesse", "speedEnabled", function(state)
-    character.Humanoid.WalkSpeed = state and 100 or 16
+    character.Humanoid.WalkSpeed = state and 100 or defaultWalkSpeed
 end)
 
 -- 🦘 Saut
 createButton("Saut", "jumpEnabled", function(state)
-    character.Humanoid.JumpPower = state and 150 or 50
+    character.Humanoid.JumpPower = state and 150 or defaultJumpPower
 end)
 
 -- 🧱 Noclip
@@ -225,7 +229,7 @@ noclipConn = RunService.Stepped:Connect(function()
     end
 end)
 createButton("Noclip", "noclip", function(state)
-    -- connexion gère automatiquement l'activation/désactivation
+    -- toggle géré automatiquement
 end)
 
 -- 🌈 Animation texte
