@@ -6,13 +6,16 @@ game.StarterGui:SetCore("SendNotification", {
 
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
+local hrp = character:WaitForChild("HumanoidRootPart")
+local humanoid = character:WaitForChild("Humanoid")
 local camera = workspace.CurrentCamera
 local uis = game:GetService("UserInputService")
+local runService = game:GetService("RunService")
 
+-- Création de la GUI
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "ShadowHub"
 
--- Fenêtre principale
 local frame = Instance.new("Frame", gui)
 frame.Size = UDim2.new(0, 320, 0, 250)
 frame.Position = UDim2.new(0.5, -160, 0.5, -125)
@@ -21,7 +24,6 @@ frame.BorderSizePixel = 0
 frame.Active = true
 frame.Draggable = true
 frame.BackgroundTransparency = 1
-
 for i = 1, 10 do
     frame.BackgroundTransparency = 1 - (i * 0.1)
     wait(0.05)
@@ -41,7 +43,7 @@ title.Font = Enum.Font.GothamBold
 title.TextSize = 24
 title.BackgroundTransparency = 1
 
--- Bouton Settings
+-- Boutons Settings et Fermer
 local settingsBtn = Instance.new("TextButton", header)
 settingsBtn.Size = UDim2.new(0, 30, 0, 30)
 settingsBtn.Position = UDim2.new(0, 5, 0, 5)
@@ -51,7 +53,6 @@ settingsBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 settingsBtn.Font = Enum.Font.GothamBold
 settingsBtn.TextSize = 18
 
--- Bouton Fermer
 local closeBtn = Instance.new("TextButton", header)
 closeBtn.Size = UDim2.new(0, 30, 0, 30)
 closeBtn.Position = UDim2.new(1, -35, 0, 5)
@@ -61,7 +62,6 @@ closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 closeBtn.Font = Enum.Font.GothamBold
 closeBtn.TextSize = 18
 
--- Bouton Réouverture
 local reopenBtn = Instance.new("TextButton", gui)
 reopenBtn.Size = UDim2.new(0, 100, 0, 30)
 reopenBtn.Position = UDim2.new(0, 10, 0, 10)
@@ -76,7 +76,6 @@ closeBtn.MouseButton1Click:Connect(function()
     frame.Visible = false
     reopenBtn.Visible = true
 end)
-
 reopenBtn.MouseButton1Click:Connect(function()
     frame.Visible = true
     reopenBtn.Visible = false
@@ -94,7 +93,6 @@ settingsPage.Position = UDim2.new(0, 0, 0, 40)
 settingsPage.BackgroundTransparency = 1
 settingsPage.Visible = false
 
--- Retour vers main
 local backBtn = Instance.new("TextButton", settingsPage)
 backBtn.Size = UDim2.new(0, 100, 0, 30)
 backBtn.Position = UDim2.new(0.5, -50, 1, -40)
@@ -103,12 +101,10 @@ backBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 backBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 backBtn.Font = Enum.Font.GothamBold
 backBtn.TextSize = 18
-
 backBtn.MouseButton1Click:Connect(function()
     settingsPage.Visible = false
     mainPage.Visible = true
 end)
-
 settingsBtn.MouseButton1Click:Connect(function()
     settingsPage.Visible = true
     mainPage.Visible = false
@@ -125,7 +121,6 @@ infoText.TextXAlignment = Enum.TextXAlignment.Left
 infoText.Font = Enum.Font.Gotham
 infoText.TextSize = 18
 infoText.BackgroundTransparency = 1
-
 infoText.Text = string.format("👤 Nom : %s\n🆔 UserId : %d\n💎 Premium : %s\n📅 Ancienneté : %s jours",
     player.Name,
     player.UserId,
@@ -138,10 +133,10 @@ _G.flyEnabled = false
 _G.speedEnabled = false
 _G.jumpEnabled = false
 _G.noclip = false
-
 local buttonY = 0.1
 local spacing = 0.2
 
+-- Fonction pour créer les boutons
 local function createButton(name, toggleVar, callback)
     local btn = Instance.new("TextButton", mainPage)
     btn.Position = UDim2.new(0.1, 0, buttonY, 0)
@@ -151,89 +146,70 @@ local function createButton(name, toggleVar, callback)
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     btn.Font = Enum.Font.GothamBold
     btn.TextSize = 18
-
     btn.MouseButton1Click:Connect(function()
         _G[toggleVar] = not _G[toggleVar]
         btn.Text = name .. (_G[toggleVar] and ": ON" or ": OFF")
         callback(_G[toggleVar])
     end)
-
     buttonY = buttonY + spacing
 end
 
--- 🔥 VOL
+-- VOL créatif pour mobile
 createButton("Vol", "flyEnabled", function(state)
-    local hrp = character:FindFirstChild("HumanoidRootPart")
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    if not hrp or not humanoid then return end
+    local vertical = 0
+    local speed = 60
 
-    if state then
-        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+    -- Boutons virtuels pour monter/descendre
+    local upBtn = Instance.new("TextButton", gui)
+    upBtn.Size = UDim2.new(0, 50, 0, 50)
+    upBtn.Position = UDim2.new(0.8, 0, 0.7, 0)
+    upBtn.Text = "↑"
+    upBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+    upBtn.TextColor3 = Color3.fromRGB(255,255,255)
+    upBtn.Visible = state
 
-        local bv = Instance.new("BodyVelocity")
-        bv.Name = "FlyVelocity"
-        bv.MaxForce = Vector3.new(1e5, 1e5, 1e5)
-        bv.Velocity = Vector3.zero
-        bv.Parent = hrp
+    local downBtn = Instance.new("TextButton", gui)
+    downBtn.Size = UDim2.new(0, 50, 0, 50)
+    downBtn.Position = UDim2.new(0.8, 0, 0.8, 0)
+    downBtn.Text = "↓"
+    downBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+    downBtn.TextColor3 = Color3.fromRGB(255,255,255)
+    downBtn.Visible = state
 
-        local bg = Instance.new("BodyGyro")
-        bg.Name = "FlyGyro"
-        bg.MaxTorque = Vector3.new(1e5, 1e5, 1e5)
-        bg.P = 1e4
-        bg.CFrame = hrp.CFrame
-        bg.Parent = hrp
+    upBtn.MouseButton1Down:Connect(function() vertical = 1 end)
+    upBtn.MouseButton1Up:Connect(function() vertical = 0 end)
+    downBtn.MouseButton1Down:Connect(function() vertical = -1 end)
+    downBtn.MouseButton1Up:Connect(function() vertical = 0 end)
 
-        local conn
-        conn = game:GetService("RunService").Heartbeat:Connect(function()
-            if not _G.flyEnabled then
-                conn:Disconnect()
-                bv:Destroy()
-                bg:Destroy()
-                humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-                humanoid.WalkSpeed = _G.speedEnabled and 100 or 16
-                humanoid.JumpPower = _G.jumpEnabled and 150 or 50
-                return
-            end
+    local conn
+    conn = runService.RenderStepped:Connect(function(deltaTime)
+        if not _G.flyEnabled then
+            upBtn:Destroy()
+            downBtn:Destroy()
+            conn:Disconnect()
+            return
+        end
 
-            local moveDir = humanoid.MoveDirection
-            local camCF = camera.CFrame
-            bg.CFrame = CFrame.new(hrp.Position, hrp.Position + camCF.LookVector)
-
-            if moveDir.Magnitude > 0 then
-                local forward = camCF.LookVector
-                local right = camCF.RightVector
-                local move = (forward * moveDir.Z + right * moveDir.X).Unit
-                bv.Velocity = move * 60
-            else
-                bv.Velocity = Vector3.zero
-            end
-        end)
-    else
-        local oldBV = hrp:FindFirstChild("FlyVelocity")
-        if oldBV then oldBV:Destroy() end
-        local oldBG = hrp:FindFirstChild("FlyGyro")
-        if oldBG then oldBG:Destroy() end
-        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-        humanoid.WalkSpeed = _G.speedEnabled and 100 or 16
-        humanoid.JumpPower = _G.jumpEnabled and 150 or 50
-    end
+        local moveDir = humanoid.MoveDirection
+        local moveVector = moveDir * speed + Vector3.new(0, vertical*speed, 0)
+        hrp.CFrame = hrp.CFrame + moveVector * deltaTime
+    end)
 end)
 
--- ⚡ Vitesse
+-- Vitesse
 createButton("Vitesse", "speedEnabled", function(state)
-    character.Humanoid.WalkSpeed = state and 100 or 16
+    humanoid.WalkSpeed = state and 100 or 16
 end)
 
--- 🦘 Saut
+-- Saut
 createButton("Saut", "jumpEnabled", function(state)
-    character.Humanoid.JumpPower = state and 150 or 50
+    humanoid.JumpPower = state and 150 or 50
 end)
 
--- 🧱 Noclip
+-- Noclip
 createButton("Noclip", "noclip", function(state)
-    -- On crée un RunService pour vérifier le noclip
     local stepped
-    stepped = game:GetService("RunService").Stepped:Connect(function()
+    stepped = runService.Stepped:Connect(function()
         if _G.noclip then
             for _, part in pairs(character:GetDescendants()) do
                 if part:IsA("BasePart") then
@@ -251,7 +227,7 @@ createButton("Noclip", "noclip", function(state)
     end)
 end)
 
--- 🌈 Animation rouge ↔ bleu
+-- Animation rouge ↔ bleu
 local function animateColor(textLabel)
     spawn(function()
         while true do
