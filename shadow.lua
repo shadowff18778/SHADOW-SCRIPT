@@ -161,35 +161,50 @@ local function createButton(name, toggleVar, callback)
     buttonY = buttonY + spacing
 end
 
--- 🔥 VOL style Minecraft (mobile & PC natif)
+-- 🔥 VOL style Minecraft créatif
 createButton("Vol", "flyEnabled", function(state)
     local hrp = character:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if not hrp or not humanoid then return end
 
     if state then
+        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+
         local bv = Instance.new("BodyVelocity")
         bv.Name = "FlyVelocity"
         bv.MaxForce = Vector3.new(1e5, 1e5, 1e5)
         bv.Velocity = Vector3.zero
         bv.Parent = hrp
 
-        local conn = game:GetService("RunService").Heartbeat:Connect(function()
+        local bg = Instance.new("BodyGyro")
+        bg.Name = "FlyGyro"
+        bg.MaxTorque = Vector3.new(1e5, 1e5, 1e5)
+        bg.P = 1e4
+        bg.CFrame = hrp.CFrame
+        bg.Parent = hrp
+
+        local conn
+        conn = game:GetService("RunService").Heartbeat:Connect(function()
             if not _G.flyEnabled then
                 conn:Disconnect()
                 bv:Destroy()
+                bg:Destroy()
+                humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
                 return
             end
 
-            -- Récupère la direction depuis le joystick/clavier
-            local moveDir = Vector3.zero
-            if character:FindFirstChildOfClass("Humanoid") then
-                moveDir = character:FindFirstChildOfClass("Humanoid").MoveDirection
-            end
+            local moveDir = humanoid.MoveDirection
+            local camCF = camera.CFrame
 
-            -- Applique la direction relative à la caméra
+            -- perso suit la caméra
+            bg.CFrame = CFrame.new(hrp.Position, hrp.Position + camCF.LookVector)
+
             if moveDir.Magnitude > 0 then
-                local camCF = camera.CFrame
-                bv.Velocity = (camCF.RightVector * moveDir.X + camCF.LookVector * moveDir.Z + Vector3.new(0, moveDir.Y, 0)) * 50
+                local forward = camCF.LookVector
+                local right = camCF.RightVector
+                local move = (forward * moveDir.Z + right * moveDir.X).Unit
+
+                bv.Velocity = move * 60
             else
                 bv.Velocity = Vector3.zero
             end
@@ -197,6 +212,9 @@ createButton("Vol", "flyEnabled", function(state)
     else
         local oldBV = hrp:FindFirstChild("FlyVelocity")
         if oldBV then oldBV:Destroy() end
+        local oldBG = hrp:FindFirstChild("FlyGyro")
+        if oldBG then oldBG:Destroy() end
+        humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
     end
 end)
 
