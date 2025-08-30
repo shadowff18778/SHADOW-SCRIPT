@@ -512,10 +512,6 @@ end)
 
 
 
-
-
-
-
 -- Speed
 createButton("Vitesse","speedEnabled",function(state)
     character.Humanoid.WalkSpeed = state and 100 or 16
