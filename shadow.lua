@@ -443,19 +443,21 @@ end
 -- =========================
 -- FONCTIONS CHEATS
 -- =========================
--- Fly
 createButton("Vol","flyEnabled",function(state)
     local hrp = character:FindFirstChild("HumanoidRootPart")
     local humanoid = character:FindFirstChildOfClass("Humanoid")
     if not hrp or not humanoid then return end
 
     if state then
-        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-        local bv = Instance.new("BodyVelocity",hrp)
+        -- Désactiver les contraintes physiques normales
+        humanoid.PlatformStand = true
+        
+        local bv = Instance.new("BodyVelocity", hrp)
         bv.Name = "FlyVelocity"
         bv.MaxForce = Vector3.new(1e5,1e5,1e5)
         bv.Velocity = Vector3.zero
-        local bg = Instance.new("BodyGyro",hrp)
+
+        local bg = Instance.new("BodyGyro", hrp)
         bg.Name = "FlyGyro"
         bg.MaxTorque = Vector3.new(1e5,1e5,1e5)
         bg.P = 1e4
@@ -467,29 +469,36 @@ createButton("Vol","flyEnabled",function(state)
                 conn:Disconnect()
                 bv:Destroy()
                 bg:Destroy()
-                humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
+                humanoid.PlatformStand = false
                 return
             end
+
             local moveDir = humanoid.MoveDirection
             local camCF = camera.CFrame
-            bg.CFrame = CFrame.new(hrp.Position, hrp.Position + camCF.LookVector)
-            if moveDir.Magnitude > 0 then
-                local forward = camCF.LookVector
-                local right = camCF.RightVector
-                local move = (forward*moveDir.Z + right*moveDir.X).Unit
-                bv.Velocity = move*60
+            local horizontalMove = (camCF.LookVector * moveDir.Z + camCF.RightVector * moveDir.X)
+            if horizontalMove.Magnitude > 0 then
+                bv.Velocity = horizontalMove.Unit * 60 + Vector3.new(0, bv.Velocity.Y, 0)
             else
-                bv.Velocity = Vector3.zero
+                bv.Velocity = Vector3.new(0, bv.Velocity.Y, 0)
             end
+
+            -- Orientation du personnage selon la caméra
+            bg.CFrame = CFrame.new(hrp.Position, hrp.Position + camCF.LookVector)
         end)
+
     else
+        -- Désactivation fly
         local oldBV = hrp:FindFirstChild("FlyVelocity")
         if oldBV then oldBV:Destroy() end
         local oldBG = hrp:FindFirstChild("FlyGyro")
         if oldBG then oldBG:Destroy() end
-        humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
+
+        -- Rétablir le comportement normal
+        humanoid.PlatformStand = false
+        humanoid:ChangeState(Enum.HumanoidStateType.GettingUp) -- permet de sauter à nouveau
     end
 end)
+
 
 -- Speed
 createButton("Vitesse","speedEnabled",function(state)
