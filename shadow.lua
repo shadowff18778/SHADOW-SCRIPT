@@ -443,7 +443,7 @@ end
 -- =========================
 -- FONCTIONS CHEATS
 -- =========================
-createButton("Vol", "flyEnabled", function(state)
+createButton("Vol","flyEnabled",function(state)
     local hrp = character:FindFirstChild("HumanoidRootPart")
     local humanoid = character:FindFirstChildOfClass("Humanoid")
     if not hrp or not humanoid then return end
@@ -463,11 +463,7 @@ createButton("Vol", "flyEnabled", function(state)
         bg.CFrame = hrp.CFrame
 
         local speed = 60
-        local ascentSpeed = 20  -- Vitesse de montée et descente
-        local smoothing = 0.2  -- Plus c’est petit, plus c’est réactif
-
-        -- Détecter les entrées tactiles (joystick)
-        local joystick = game:GetService("UserInputService"):GetDeviceState(Enum.UserInputType.Touch)
+        local smoothing = 0.2  -- plus c’est petit, plus c’est réactif
 
         local conn
         conn = RS.Heartbeat:Connect(function(dt)
@@ -479,30 +475,24 @@ createButton("Vol", "flyEnabled", function(state)
                 return
             end
 
-            local moveDir = Vector3.zero
-            local camCF = camera.CFrame  -- Position de la caméra
+            local moveDir = humanoid.MoveDirection
+            local camCF = camera.CFrame  -- Récupérer la position de la caméra
 
-            -- Si un joystick est présent, on l'utilise pour le mouvement
-            local touchInput = game:GetService("UserInputService"):GetTouches()
-            if #touchInput > 0 then
-                -- Récupérer la direction du joystick (x, y)
-                local touch = touchInput[1]
-                moveDir = Vector3.new(touch.Position.X - screenCenter.X, 0, touch.Position.Y - screenCenter.Y).unit
+            local targetVelocity
+            if moveDir.Magnitude > 0 then
+                -- On utilise les directions locales pour bouger, pas affecté par la caméra
+                local moveDirection = Vector3.new(moveDir.X, 0, moveDir.Z).unit  -- Mouvement horizontal dans l'espace local
+                targetVelocity = moveDirection * speed
+            else
+                targetVelocity = Vector3.new(0, 0, 0)
             end
 
-            -- Gestion du vol vertical (montée / descente) avec un deuxième joystick ou mouvement
-            local velocityY = 0
-            if user.InputService:IsKeyDown(Enum.KeyCode.Space) then
-                velocityY = ascentSpeed  -- Si le joueur veut monter (par exemple par un second joystick ou geste)
-            elseif user.InputService:IsKeyDown(Enum.KeyCode.LeftControl) then
-                velocityY = -ascentSpeed  -- Si le joueur veut descendre
-            end
+            -- Ajuster la vitesse en fonction de l'orientation de la caméra (monter ou descendre)
+            local velocityY = camCF.LookVector.Y * speed  -- La vitesse verticale suit la caméra
+            bv.Velocity = Vector3.new(targetVelocity.X, velocityY, targetVelocity.Z)
 
-            -- Appliquer la direction de vol
-            bv.Velocity = Vector3.new(moveDir.X * speed, velocityY, moveDir.Z * speed)
-
-            -- Lissage du mouvement
-            bv.Velocity = bv.Velocity:Lerp(Vector3.new(moveDir.X * speed, velocityY, moveDir.Z * speed), smoothing)
+            -- Lissage de la vitesse pour un arrêt progressif
+            bv.Velocity = bv.Velocity:Lerp(targetVelocity, smoothing)
 
             -- Garder l'orientation du personnage selon la caméra
             bg.CFrame = CFrame.new(hrp.Position, hrp.Position + camCF.LookVector)
@@ -516,6 +506,7 @@ createButton("Vol", "flyEnabled", function(state)
         humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
     end
 end)
+
 
 
 
