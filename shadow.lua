@@ -1,14 +1,4 @@
---[[
-  Script de l'interface utilisateur "Shadow Hub".
-  Ceci est un LocalScript et doit être placé dans StarterPlayer > StarterPlayerScripts
-  ou dans StarterGui. Si ce script est dans un Script normal ou dans le Workspace,
-  il ne fonctionnera pas car il est côté client.
-]]
 
--- Assurez-vous que le script est un LocalScript.
--- Emplacement recommandé : game.StarterPlayer.StarterPlayerScripts
-
--- Notifications de démarrage
 game.StarterGui:SetCore("SendNotification", {
     Title = "SHADOW HUB",
     Text = "Prépare-toi à dominer 😈",
