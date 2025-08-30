@@ -125,7 +125,7 @@ settingsBtn.TextSize = 22
 Instance.new("UICorner", settingsBtn).CornerRadius = UDim.new(0,8)
 
 local closeBtn = Instance.new("TextButton", header)
-submitBtn.Position = UDim2.new(0, 10, 0, 10)  -- Position à 10 pixels du bord supérieur et gauche
+closeBtn.Size = UDim2.new(0,35,0,35)
 closeBtn.Position = UDim2.new(1,-40,0,5)
 closeBtn.Text = "X"
 closeBtn.BackgroundColor3 = Color3.fromRGB(120,0,0)
@@ -135,7 +135,7 @@ closeBtn.TextSize = 22
 Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0,8)
 
 local reopenBtn = Instance.new("TextButton", gui)
-submitBtn.Position = UDim2.new(0, 10, 0, 10)  -- Position à 10 pixels du bord supérieur et gauche
+reopenBtn.Size = UDim2.new(0,120,0,35)
 reopenBtn.Position = UDim2.new(0.5,-60,0.9,0)
 reopenBtn.Text = "SHADOW"
 reopenBtn.BackgroundColor3 = Color3.fromRGB(0,0,0)
