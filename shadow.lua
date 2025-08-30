@@ -99,6 +99,9 @@ end
 -- Lancer l'animation d'entrée
 spawn(animateEntry)
 
--- Fermer l'interface après 10 secondes
+-- Attendre que l'animation d'entrée soit terminée avant de commencer le délai de 10 secondes
+wait(1.5)  -- Attendre que l'animation d'entrée soit bien terminée
+
+-- Garder l'interface pendant 10 secondes avant de la fermer
 wait(10)
 screenGui:Destroy()
