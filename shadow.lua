@@ -157,6 +157,72 @@ settingsPage.Position = UDim2.new(0,0,0,45)
 settingsPage.BackgroundTransparency = 1
 settingsPage.Visible = false
 
+-- =========================
+-- BOUTON INFOS JOUEURS DANS SETTINGS
+-- =========================
+local infoBtn = Instance.new("TextButton", settingsPage)
+infoBtn.Size = UDim2.new(0,180,0,35)
+infoBtn.Position = UDim2.new(0.5,-90,0.2,0) -- au-dessus du bouton retour
+infoBtn.Text = "Infos Joueurs"
+infoBtn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+infoBtn.TextColor3 = Color3.fromRGB(255,255,255)
+infoBtn.Font = Enum.Font.GothamBold
+infoBtn.TextSize = 20
+Instance.new("UICorner", infoBtn).CornerRadius = UDim.new(0,10)
+
+local infoPage = Instance.new("Frame", frame)
+infoPage.Size = UDim2.new(1,0,1,-45)
+infoPage.Position = UDim2.new(0,0,0,45)
+infoPage.BackgroundTransparency = 1
+infoPage.Visible = false
+
+local backInfoBtn = Instance.new("TextButton", infoPage)
+backInfoBtn.Size = UDim2.new(0,120,0,35)
+backInfoBtn.Position = UDim2.new(0.5,-60,1,-50)
+backInfoBtn.Text = "← Retour"
+backInfoBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+backInfoBtn.TextColor3 = Color3.fromRGB(255,255,255)
+backInfoBtn.Font = Enum.Font.GothamBold
+backInfoBtn.TextSize = 20
+Instance.new("UICorner", backInfoBtn).CornerRadius = UDim.new(0,10)
+backInfoBtn.MouseButton1Click:Connect(function()
+    infoPage.Visible = false
+    settingsPage.Visible = true
+end)
+
+local infoText = Instance.new("TextLabel", infoPage)
+infoText.Size = UDim2.new(1,-40,1,-60)
+infoText.Position = UDim2.new(0,20,0,20)
+infoText.TextColor3 = Color3.fromRGB(200,200,200)
+infoText.TextWrapped = true
+infoText.TextYAlignment = Enum.TextYAlignment.Top
+infoText.TextXAlignment = Enum.TextXAlignment.Left
+infoText.Font = Enum.Font.Gotham
+infoText.TextSize = 18
+infoText.BackgroundTransparency = 1
+
+infoBtn.MouseButton1Click:Connect(function()
+    settingsPage.Visible = false
+    infoPage.Visible = true
+    spawn(function()
+        while infoPage.Visible do
+            local text = "👤 Joueurs dans le jeu :\n"
+            for i, plr in pairs(game.Players:GetPlayers()) do
+                local robux = "N/A"
+                if plr.GetRobuxBalance then
+                    local success, balance = pcall(function()
+                        return plr:GetRobuxBalance()
+                    end)
+                    if success then robux = balance end
+                end
+                text = text..string.format("%d. %s | Robux: %s\n", i, plr.Name, robux)
+            end
+            infoText.Text = text
+            wait(1)
+        end
+    end)
+end)
+
 -- BACK BUTTON SETTINGS
 local backBtn = Instance.new("TextButton", settingsPage)
 backBtn.Size = UDim2.new(0,120,0,35)
@@ -167,7 +233,6 @@ backBtn.TextColor3 = Color3.fromRGB(255,255,255)
 backBtn.Font = Enum.Font.GothamBold
 backBtn.TextSize = 20
 Instance.new("UICorner", backBtn).CornerRadius = UDim.new(0,10)
-
 backBtn.MouseButton1Click:Connect(function()
     settingsPage.Visible = false
     mainPage.Visible = true
@@ -199,7 +264,6 @@ signature.TextColor3 = Color3.fromRGB(255,0,0)
 signature.BackgroundTransparency = 1
 signature.TextScaled = true
 
--- Animation RGB signature
 spawn(function()
     while true do
         for i=0,1,0.01 do
@@ -209,18 +273,18 @@ spawn(function()
     end
 end)
 
--- Infos joueur
-local infoText = Instance.new("TextLabel", settingsPage)
-infoText.Size = UDim2.new(1,-40,0,200)
-infoText.Position = UDim2.new(0,20,0,20)
-infoText.TextColor3 = Color3.fromRGB(200,200,200)
-infoText.TextWrapped = true
-infoText.TextYAlignment = Enum.TextYAlignment.Top
-infoText.TextXAlignment = Enum.TextXAlignment.Left
-infoText.Font = Enum.Font.Gotham
-infoText.TextSize = 18
-infoText.BackgroundTransparency = 1
-infoText.Text = string.format("👤 Nom : %s\n🆔 UserId : %d\n💎 Premium : %s\n📅 Ancienneté : %s jours",
+-- Infos joueur Settings
+local infoText2 = Instance.new("TextLabel", settingsPage)
+infoText2.Size = UDim2.new(1,-40,0,200)
+infoText2.Position = UDim2.new(0,20,0,20)
+infoText2.TextColor3 = Color3.fromRGB(200,200,200)
+infoText2.TextWrapped = true
+infoText2.TextYAlignment = Enum.TextYAlignment.Top
+infoText2.TextXAlignment = Enum.TextXAlignment.Left
+infoText2.Font = Enum.Font.Gotham
+infoText2.TextSize = 18
+infoText2.BackgroundTransparency = 1
+infoText2.Text = string.format("👤 Nom : %s\n🆔 UserId : %d\n💎 Premium : %s\n📅 Ancienneté : %s jours",
     player.Name,
     player.UserId,
     tostring(player.MembershipType == Enum.MembershipType.Premium),
@@ -228,7 +292,7 @@ infoText.Text = string.format("👤 Nom : %s\n🆔 UserId : %d\n💎 Premium : %
 )
 
 -- =========================
--- VARIABLES GLOBALES
+-- VARIABLES GLOBALES CHEATS
 -- =========================
 _G.flyEnabled = false
 _G.speedEnabled = false
@@ -259,7 +323,7 @@ local function createButton(name,toggleVar,callback)
 end
 
 -- =========================
--- FONCTIONS CHEAT (inchangées)
+-- FONCTIONS CHEATS (inchangées)
 -- =========================
 -- Fly
 createButton("Vol","flyEnabled",function(state)
@@ -365,4 +429,3 @@ submitBtn.MouseButton1Click:Connect(function()
         passBox.PlaceholderText = "Mot de passe incorrect"
     end
 end)
-
