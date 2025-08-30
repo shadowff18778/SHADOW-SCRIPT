@@ -86,9 +86,9 @@ openButton.MouseButton1Click:Connect(function()
     game:GetService("GuiService"):OpenBrowserWindow("https://t.me/+94jtgXlufOA4MDU8")
 end)
 
--- Ajouter une animation de fade-in sur toute la fenêtre (douce)
+-- Animation de fade-in sur toute la fenêtre (douce)
 background.BackgroundTransparency = 1
-for i = 0, 1, 0.05 do
+for i = 0, 0.6, 0.05 do
     background.BackgroundTransparency = i
     wait(0.05)
 end
@@ -97,9 +97,9 @@ end
 wait(10)
 
 -- Animation de fade-out avant de détruire
-for i = 1, 0, -0.05 do
+for i = 0.6, 1, 0.05 do
     background.BackgroundTransparency = i
     wait(0.05)
 end
 
-screenGui:Destroy()
+screenGui:Destroy()  -- Détruire le GUI après le fade-out
