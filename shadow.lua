@@ -1,6 +1,7 @@
 local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui") -- On attend PlayerGui
 local screenGui = Instance.new("ScreenGui") -- Créer un ScreenGui
-screenGui.Parent = player:WaitForChild("PlayerGui")
+screenGui.Parent = playerGui -- Parenté au PlayerGui du joueur pour affichage
 
 -- Créer un fond sombre avec des bordures arrondies pour un look plus premium
 local background = Instance.new("Frame")
@@ -10,13 +11,6 @@ background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 background.BackgroundTransparency = 0.6
 background.BorderRadius = UDim.new(0, 20) -- Bordures arrondies
 background.Parent = screenGui
-
--- Animation de fade-in pour le background
-background.BackgroundTransparency = 1
-for i = 0, 1, 0.1 do
-    background.BackgroundTransparency = i
-    wait(0.05)
-end
 
 -- Créer le texte "SHADOW HUB" avec une animation RGB fluide et plus stylée
 local title = Instance.new("TextLabel")
@@ -100,7 +94,7 @@ end)
 wait(10)
 
 -- Animation de fade-out pour l'ensemble du background
-for i = 1, 0, -0.1 do
+for i = 0.6, 1, 0.1 do
     background.BackgroundTransparency = i
     wait(0.05)
 end
