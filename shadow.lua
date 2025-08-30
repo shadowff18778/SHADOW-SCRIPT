@@ -1,4 +1,3 @@
--- SHADOW HUB Notification
 game.StarterGui:SetCore("SendNotification", {
     Title = "SHADOW HUB",
     Text = "Prépare-toi à dominer 😈",
@@ -114,7 +113,7 @@ title.Font = Enum.Font.GothamBold
 title.TextSize = 28
 title.BackgroundTransparency = 1
 
--- Boutons header
+-- Boutons
 local settingsBtn = Instance.new("TextButton", header)
 settingsBtn.Size = UDim2.new(0,35,0,35)
 settingsBtn.Position = UDim2.new(0,5,0,5)
@@ -159,8 +158,18 @@ settingsPage.BackgroundTransparency = 1
 settingsPage.Visible = false
 
 -- =========================
--- PAGE INFOS JOUEURS
+-- INFOS JOUEUR
 -- =========================
+local infoBtn = Instance.new("TextButton", settingsPage)
+infoBtn.Size = UDim2.new(0,180,0,35)
+infoBtn.Position = UDim2.new(0.5,-90,0.2,0)
+infoBtn.Text = "Infos Joueurs"
+infoBtn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+infoBtn.TextColor3 = Color3.fromRGB(255,255,255)
+infoBtn.Font = Enum.Font.GothamBold
+infoBtn.TextSize = 20
+Instance.new("UICorner", infoBtn).CornerRadius = UDim.new(0,10)
+
 local infoPage = Instance.new("Frame", frame)
 infoPage.Size = UDim2.new(1,0,1,-45)
 infoPage.Position = UDim2.new(0,0,0,45)
@@ -181,6 +190,7 @@ backInfoBtn.MouseButton1Click:Connect(function()
     settingsPage.Visible = true
 end)
 
+-- Texte infos
 local infoText = Instance.new("TextLabel", infoPage)
 infoText.Size = UDim2.new(1,-40,1,-60)
 infoText.Position = UDim2.new(0,20,0,20)
@@ -192,16 +202,6 @@ infoText.Font = Enum.Font.Gotham
 infoText.TextSize = 18
 infoText.BackgroundTransparency = 1
 
-local infoBtn = Instance.new("TextButton", settingsPage)
-infoBtn.Size = UDim2.new(0,180,0,35)
-infoBtn.Position = UDim2.new(0.5,-90,0.2,0)
-infoBtn.Text = "Infos Joueurs"
-infoBtn.BackgroundColor3 = Color3.fromRGB(60,60,60)
-infoBtn.TextColor3 = Color3.fromRGB(255,255,255)
-infoBtn.Font = Enum.Font.GothamBold
-infoBtn.TextSize = 20
-Instance.new("UICorner", infoBtn).CornerRadius = UDim.new(0,10)
-
 infoBtn.MouseButton1Click:Connect(function()
     settingsPage.Visible = false
     infoPage.Visible = true
@@ -211,6 +211,13 @@ infoBtn.MouseButton1Click:Connect(function()
             for i, plr in pairs(game.Players:GetPlayers()) do
                 text = text..string.format("%d. %s\n", i, plr.Name)
             end
+            -- Infos du joueur local
+            text = text..string.format("\n🟢 Tes Infos :\nNom: %s\nUserId: %d\nPremium: %s\nAccountAge: %s jours",
+                player.Name,
+                player.UserId,
+                tostring(player.MembershipType == Enum.MembershipType.Premium),
+                tostring(player.AccountAge)
+            )
             infoText.Text = text
             wait(1)
         end
@@ -218,11 +225,11 @@ infoBtn.MouseButton1Click:Connect(function()
 end)
 
 -- =========================
--- PAGE GAME SET / TELEPORT
+-- BOUTON TELEPORTATION
 -- =========================
 local gameSetBtn = Instance.new("TextButton", settingsPage)
 gameSetBtn.Size = UDim2.new(0,180,0,35)
-gameSetBtn.Position = UDim2.new(0.5,-90,0.3,0)
+gameSetBtn.Position = UDim2.new(0.5,-90,0.35,0)
 gameSetBtn.Text = "Game Set"
 gameSetBtn.BackgroundColor3 = Color3.fromRGB(60,60,60)
 gameSetBtn.TextColor3 = Color3.fromRGB(255,255,255)
@@ -230,81 +237,92 @@ gameSetBtn.Font = Enum.Font.GothamBold
 gameSetBtn.TextSize = 20
 Instance.new("UICorner", gameSetBtn).CornerRadius = UDim.new(0,10)
 
-local gameSetPage = Instance.new("Frame", frame)
-gameSetPage.Size = UDim2.new(1,0,1,-45)
-gameSetPage.Position = UDim2.new(0,0,0,45)
-gameSetPage.BackgroundTransparency = 1
-gameSetPage.Visible = false
+local gamePage = Instance.new("Frame", frame)
+gamePage.Size = UDim2.new(1,0,1,-45)
+gamePage.Position = UDim2.new(0,0,0,45)
+gamePage.BackgroundTransparency = 1
+gamePage.Visible = false
 
-local backGameSetBtn = Instance.new("TextButton", gameSetPage)
-backGameSetBtn.Size = UDim2.new(0,120,0,35)
-backGameSetBtn.Position = UDim2.new(0.5,-60,1,-50)
-backGameSetBtn.Text = "← Retour"
-backGameSetBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
-backGameSetBtn.TextColor3 = Color3.fromRGB(255,255,255)
-backGameSetBtn.Font = Enum.Font.GothamBold
-backGameSetBtn.TextSize = 20
-Instance.new("UICorner", backGameSetBtn).CornerRadius = UDim.new(0,10)
-backGameSetBtn.MouseButton1Click:Connect(function()
-    gameSetPage.Visible = false
+local backGameBtn = Instance.new("TextButton", gamePage)
+backGameBtn.Size = UDim2.new(0,120,0,35)
+backGameBtn.Position = UDim2.new(0.5,-60,1,-50)
+backGameBtn.Text = "← Retour"
+backGameBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+backGameBtn.TextColor3 = Color3.fromRGB(255,255,255)
+backGameBtn.Font = Enum.Font.GothamBold
+backGameBtn.TextSize = 20
+Instance.new("UICorner", backGameBtn).CornerRadius = UDim.new(0,10)
+backGameBtn.MouseButton1Click:Connect(function()
+    gamePage.Visible = false
     settingsPage.Visible = true
 end)
 
--- Boutons Game Set
-local teleportPos = nil
+-- Teleport buttons
+local setPointBtn = Instance.new("TextButton", gamePage)
+setPointBtn.Size = UDim2.new(0,120,0,35)
+setPointBtn.Position = UDim2.new(0.5,-60,0.3,0)
+setPointBtn.Text = "Set Point"
+setPointBtn.BackgroundColor3 = Color3.fromRGB(255,0,0)
+setPointBtn.TextColor3 = Color3.fromRGB(255,255,255)
+setPointBtn.Font = Enum.Font.GothamBold
+setPointBtn.TextSize = 20
+Instance.new("UICorner", setPointBtn).CornerRadius = UDim.new(0,10)
 
-local setBtn = Instance.new("TextButton", gameSetPage)
-setBtn.Size = UDim2.new(0,180,0,35)
-setBtn.Position = UDim2.new(0.5,-90,0.2,0)
-setBtn.Text = "Set Position"
-setBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
-setBtn.TextColor3 = Color3.fromRGB(255,255,255)
-setBtn.Font = Enum.Font.GothamBold
-setBtn.TextSize = 20
-Instance.new("UICorner", setBtn).CornerRadius = UDim.new(0,10)
+local goPointBtn = Instance.new("TextButton", gamePage)
+goPointBtn.Size = UDim2.new(0,120,0,35)
+goPointBtn.Position = UDim2.new(0.5,-60,0.45,0)
+goPointBtn.Text = "Go To Point"
+goPointBtn.BackgroundColor3 = Color3.fromRGB(0,255,0)
+goPointBtn.TextColor3 = Color3.fromRGB(0,0,0)
+goPointBtn.Font = Enum.Font.GothamBold
+goPointBtn.TextSize = 20
+Instance.new("UICorner", goPointBtn).CornerRadius = UDim.new(0,10)
 
-local teleportBtn = Instance.new("TextButton", gameSetPage)
-teleportBtn.Size = UDim2.new(0,180,0,35)
-teleportBtn.Position = UDim2.new(0.5,-90,0.4,0)
-teleportBtn.Text = "Teleport"
-teleportBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
-teleportBtn.TextColor3 = Color3.fromRGB(255,255,255)
-teleportBtn.Font = Enum.Font.GothamBold
-teleportBtn.TextSize = 20
-Instance.new("UICorner", teleportBtn).CornerRadius = UDim.new(0,10)
+local removePointBtn = Instance.new("TextButton", gamePage)
+removePointBtn.Size = UDim2.new(0,120,0,35)
+removePointBtn.Position = UDim2.new(0.5,-60,0.6,0)
+removePointBtn.Text = "Remove Point"
+removePointBtn.BackgroundColor3 = Color3.fromRGB(255,100,100)
+removePointBtn.TextColor3 = Color3.fromRGB(0,0,0)
+removePointBtn.Font = Enum.Font.GothamBold
+removePointBtn.TextSize = 20
+Instance.new("UICorner", removePointBtn).CornerRadius = UDim.new(0,10)
 
-local removeBtn = Instance.new("TextButton", gameSetPage)
-removeBtn.Size = UDim2.new(0,180,0,35)
-removeBtn.Position = UDim2.new(0.5,-90,0.6,0)
-removeBtn.Text = "Remove Point"
-removeBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
-removeBtn.TextColor3 = Color3.fromRGB(255,255,255)
-removeBtn.Font = Enum.Font.GothamBold
-removeBtn.TextSize = 20
-Instance.new("UICorner", removeBtn).CornerRadius = UDim.new(0,10)
+local teleportPoint
+local marker
 
-setBtn.MouseButton1Click:Connect(function()
-    teleportPos = character.HumanoidRootPart.Position
+setPointBtn.MouseButton1Click:Connect(function()
+    teleportPoint = character.HumanoidRootPart.Position
+    if marker then marker:Destroy() end
+    marker = Instance.new("Part", workspace)
+    marker.Size = Vector3.new(2,2,2)
+    marker.Anchored = true
+    marker.CanCollide = false
+    marker.BrickColor = BrickColor.Red()
+    marker.Position = teleportPoint + Vector3.new(0,2,0)
+    marker.Name = "TeleportMarker"
 end)
 
-teleportBtn.MouseButton1Click:Connect(function()
-    if teleportPos then
-        character.HumanoidRootPart.CFrame = CFrame.new(teleportPos)
+goPointBtn.MouseButton1Click:Connect(function()
+    if teleportPoint then
+        character.HumanoidRootPart.CFrame = CFrame.new(teleportPoint + Vector3.new(0,3,0))
     end
 end)
 
-removeBtn.MouseButton1Click:Connect(function()
-    teleportPos = nil
+removePointBtn.MouseButton1Click:Connect(function()
+    teleportPoint = nil
+    if marker then
+        marker:Destroy()
+        marker = nil
+    end
 end)
 
 gameSetBtn.MouseButton1Click:Connect(function()
     settingsPage.Visible = false
-    gameSetPage.Visible = true
+    gamePage.Visible = true
 end)
 
--- =========================
 -- BACK BUTTON SETTINGS
--- =========================
 local backBtn = Instance.new("TextButton", settingsPage)
 backBtn.Size = UDim2.new(0,120,0,35)
 backBtn.Position = UDim2.new(0.5,-60,1,-50)
@@ -334,9 +352,7 @@ reopenBtn.MouseButton1Click:Connect(function()
     reopenBtn.Visible = false
 end)
 
--- =========================
 -- Signature RGB
--- =========================
 local signature = Instance.new("TextLabel", frame)
 signature.Size = UDim2.new(1,0,0,20)
 signature.Position = UDim2.new(0,0,1,-25)
@@ -388,7 +404,7 @@ local function createButton(name,toggleVar,callback)
 end
 
 -- =========================
--- CHEATS FUNCTIONS
+-- FONCTIONS CHEATS
 -- =========================
 -- Fly
 createButton("Vol","flyEnabled",function(state)
