@@ -2,26 +2,35 @@ local player = game.Players.LocalPlayer
 local screenGui = Instance.new("ScreenGui") -- Créer un ScreenGui
 screenGui.Parent = player:WaitForChild("PlayerGui")
 
--- Créer un fond sombre
+-- Créer un fond sombre avec des bordures arrondies pour un look plus premium
 local background = Instance.new("Frame")
-background.Size = UDim2.new(1, 0, 1, 0)
+background.Size = UDim2.new(0.8, 0, 0.6, 0) -- Taille ajustée pour une fenêtre plus petite et plus centrée
+background.Position = UDim2.new(0.5, -240, 0.5, -180) -- Centré sur l'écran
 background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 background.BackgroundTransparency = 0.6
-background.Position = UDim2.new(0, 0, 0, 0) -- Position en haut de l'écran
+background.BorderRadius = UDim.new(0, 20) -- Bordures arrondies
 background.Parent = screenGui
 
--- Créer le texte "SHADOW HUB" avec une animation RGB plus douce
+-- Animation de fade-in pour le background
+background.BackgroundTransparency = 1
+for i = 0, 1, 0.1 do
+    background.BackgroundTransparency = i
+    wait(0.05)
+end
+
+-- Créer le texte "SHADOW HUB" avec une animation RGB fluide et plus stylée
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(0, 400, 0, 50)
-title.Position = UDim2.new(0.5, -200, 0, 50) -- Centré en haut
+title.Size = UDim2.new(0, 500, 0, 60)
+title.Position = UDim2.new(0.5, -250, 0, 20) -- Centré en haut
 title.Text = "SHADOW HUB"
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.TextSize = 40
+title.TextSize = 48
 title.Font = Enum.Font.GothamBold
 title.BackgroundTransparency = 1
+title.TextAlignment = Enum.TextAlignment.Center
 title.Parent = background
 
--- Animation du texte "SHADOW HUB" (changement de couleur douce)
+-- Animation du titre "SHADOW HUB" (changement de couleur fluide RGB)
 local function animateTitle()
     local i = 0
     while true do
@@ -39,28 +48,28 @@ spawn(animateTitle)
 
 -- Créer le texte "MOD PROBLEME SERVEUR" en rouge
 local message = Instance.new("TextLabel")
-message.Size = UDim2.new(0, 500, 0, 30)
-message.Position = UDim2.new(0.5, -250, 0, 120) -- Centré sous le titre
+message.Size = UDim2.new(0, 600, 0, 40)
+message.Position = UDim2.new(0.5, -300, 0, 100) -- Centré sous le titre
 message.Text = "MOD PROBLEME SERVEUR\nVeuillez attendre la nouvelle mise à jour"
 message.TextColor3 = Color3.fromRGB(255, 0, 0) -- Texte en rouge
-message.TextSize = 20
+message.TextSize = 24
 message.Font = Enum.Font.Gotham
 message.BackgroundTransparency = 1
-message.Parent = background
 message.TextWrapped = true
-message.TextYAlignment = Enum.TextYAlignment.Top
+message.TextAlignment = Enum.TextAlignment.Center
+message.Parent = background
 
--- Créer le texte "Contacter le développeur" avec lien
+-- Créer le bouton cliquable pour contacter le développeur (le lien)
 local contactText = Instance.new("TextButton")
-contactText.Size = UDim2.new(0, 500, 0, 30)
-contactText.Position = UDim2.new(0.5, -250, 0, 170) -- Centré sous le message
+contactText.Size = UDim2.new(0, 600, 0, 40)
+contactText.Position = UDim2.new(0.5, -300, 0, 170) -- Centré sous le message
 contactText.Text = "Contacter le développeur sur\nhttps://t.me/+94jtgXlufOA4MDU8"
 contactText.TextColor3 = Color3.fromRGB(0, 121, 255) -- Couleur bleue pour le lien
-contactText.TextSize = 20
+contactText.TextSize = 24
 contactText.Font = Enum.Font.Gotham
 contactText.BackgroundTransparency = 1
 contactText.TextWrapped = true
-contactText.TextYAlignment = Enum.TextYAlignment.Top
+contactText.TextAlignment = Enum.TextAlignment.Center
 contactText.Parent = background
 
 -- Lorsqu'on clique sur le lien, ouvrir le navigateur
@@ -69,15 +78,16 @@ contactText.MouseButton1Click:Connect(function()
     game:GetService("GuiService"):OpenBrowserWindow("https://t.me/+94jtgXlufOA4MDU8")
 end)
 
--- Créer un bouton pour ouvrir le lien directement dans le navigateur
+-- Créer un bouton "Ouvrir Lien" pour ouvrir le lien Telegram directement
 local openButton = Instance.new("TextButton")
-openButton.Size = UDim2.new(0, 250, 0, 40)
-openButton.Position = UDim2.new(0.5, -125, 0, 230) -- Centré sous le lien
+openButton.Size = UDim2.new(0, 300, 0, 50)
+openButton.Position = UDim2.new(0.5, -150, 0, 240) -- Centré sous le lien
 openButton.Text = "Ouvrir Lien"
 openButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-openButton.TextSize = 18
+openButton.TextSize = 22
 openButton.BackgroundColor3 = Color3.fromRGB(0, 121, 255) -- Bleu pour le bouton
-openButton.Font = Enum.Font.Gotham
+openButton.Font = Enum.Font.GothamBold
+openButton.BorderRadius = UDim.new(0, 15) -- Bordures arrondies pour le bouton
 openButton.Parent = background
 
 -- Ouvrir le lien dans le navigateur au clic
@@ -86,18 +96,11 @@ openButton.MouseButton1Click:Connect(function()
     game:GetService("GuiService"):OpenBrowserWindow("https://t.me/+94jtgXlufOA4MDU8")
 end)
 
--- Ajouter une animation de fade-in sur toute la fenêtre (douce)
-background.BackgroundTransparency = 1
-for i = 0, 1, 0.05 do
-    background.BackgroundTransparency = i
-    wait(0.05)
-end
-
--- Garder l'interface pendant 10 secondes avant de la fermer
+-- Animation de fade-out avant de détruire la fenêtre après 10 secondes
 wait(10)
 
--- Animation de fade-out avant de détruire
-for i = 1, 0, -0.05 do
+-- Animation de fade-out pour l'ensemble du background
+for i = 1, 0, -0.1 do
     background.BackgroundTransparency = i
     wait(0.05)
 end
