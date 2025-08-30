@@ -449,7 +449,6 @@ createButton("Vol","flyEnabled",function(state)
     if not hrp or not humanoid then return end
 
     if state then
-        -- Désactiver les contraintes normales
         humanoid.PlatformStand = true
 
         local bv = Instance.new("BodyVelocity", hrp)
@@ -463,8 +462,11 @@ createButton("Vol","flyEnabled",function(state)
         bg.P = 1e4
         bg.CFrame = hrp.CFrame
 
+        local speed = 60
+        local smoothing = 0.2  -- plus c’est petit, plus c’est réactif
+
         local conn
-        conn = RS.Heartbeat:Connect(function()
+        conn = RS.Heartbeat:Connect(function(dt)
             if not _G.flyEnabled then
                 conn:Disconnect()
                 bv:Destroy()
@@ -475,31 +477,31 @@ createButton("Vol","flyEnabled",function(state)
 
             local moveDir = humanoid.MoveDirection
             local camCF = camera.CFrame
-            local horizontalMove = (camCF.LookVector * moveDir.Z + camCF.RightVector * moveDir.X)
 
-            -- Arrêt instantané si pas de mouvement
-            if horizontalMove.Magnitude > 0 then
-                bv.Velocity = horizontalMove.Unit * 60 + Vector3.new(0, bv.Velocity.Y, 0)
+            local targetVelocity
+            if moveDir.Magnitude > 0 then
+                local horizontalMove = (camCF.LookVector * moveDir.Z + camCF.RightVector * moveDir.X)
+                targetVelocity = horizontalMove.Unit * speed
             else
-                bv.Velocity = Vector3.new(0, bv.Velocity.Y, 0)
+                targetVelocity = Vector3.new(0,0,0)
             end
 
-            -- Orientation du personnage selon la caméra
+            -- Lissage de la vitesse pour un arrêt progressif
+            bv.Velocity = bv.Velocity:Lerp(targetVelocity, smoothing)
+
+            -- Garder la position du personnage orientée selon la caméra
             bg.CFrame = CFrame.new(hrp.Position, hrp.Position + camCF.LookVector)
         end)
-
     else
-        -- Désactivation fly
         local oldBV = hrp:FindFirstChild("FlyVelocity")
         if oldBV then oldBV:Destroy() end
         local oldBG = hrp:FindFirstChild("FlyGyro")
         if oldBG then oldBG:Destroy() end
-
-        -- Rétablir le comportement normal
         humanoid.PlatformStand = false
-        humanoid:ChangeState(Enum.HumanoidStateType.GettingUp) -- permet de sauter à nouveau
+        humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
     end
 end)
+
 
 
 
