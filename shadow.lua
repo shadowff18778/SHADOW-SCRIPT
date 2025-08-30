@@ -158,7 +158,7 @@ settingsPage.BackgroundTransparency = 1
 settingsPage.Visible = false
 
 -- =========================
--- INFOS JOUEUR
+-- INFOS JOUEUR (corrigé avec Scroll)
 -- =========================
 local infoBtn = Instance.new("TextButton", settingsPage)
 infoBtn.Size = UDim2.new(0,180,0,35)
@@ -190,17 +190,74 @@ backInfoBtn.MouseButton1Click:Connect(function()
     settingsPage.Visible = true
 end)
 
--- Texte infos
-local infoText = Instance.new("TextLabel", infoPage)
-infoText.Size = UDim2.new(1,-40,1,-60)
-infoText.Position = UDim2.new(0,20,0,20)
+-- ScrollingFrame pour la liste des joueurs
+local playerList = Instance.new("ScrollingFrame", infoPage)
+playerList.Size = UDim2.new(1,-40,1,-60)
+playerList.Position = UDim2.new(0,20,0,20)
+playerList.BackgroundTransparency = 1
+playerList.CanvasSize = UDim2.new(0,0,0,0)
+playerList.ScrollBarThickness = 6
+
+-- Layout pour organiser les boutons
+local listLayout = Instance.new("UIListLayout", playerList)
+listLayout.Padding = UDim.new(0,5)
+listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- Texte d’en-tête
+local infoText = Instance.new("TextLabel", playerList)
+infoText.Size = UDim2.new(1,0,0,30)
+infoText.Text = "👤 Joueurs dans le jeu :"
 infoText.TextColor3 = Color3.fromRGB(200,200,200)
-infoText.TextWrapped = true
-infoText.TextYAlignment = Enum.TextYAlignment.Top
-infoText.TextXAlignment = Enum.TextXAlignment.Left
-infoText.Font = Enum.Font.Gotham
+infoText.Font = Enum.Font.GothamBold
 infoText.TextSize = 18
 infoText.BackgroundTransparency = 1
+infoText.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Fonction pour créer les boutons des joueurs
+local function createPlayerButtons()
+    -- Supprimer les anciens boutons (sauf le texte d’en-tête)
+    for _, child in pairs(playerList:GetChildren()) do
+        if child:IsA("TextButton") then
+            child:Destroy()
+        end
+    end
+
+    -- Créer un bouton pour chaque joueur
+    for _, plr in pairs(game.Players:GetPlayers()) do
+        if plr ~= player then
+            local playerBtn = Instance.new("TextButton", playerList)
+            playerBtn.Size = UDim2.new(1, -10, 0, 30)
+            playerBtn.Text = plr.Name
+            playerBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
+            playerBtn.TextColor3 = Color3.fromRGB(255,255,255)
+            playerBtn.Font = Enum.Font.Gotham
+            playerBtn.TextSize = 18
+            Instance.new("UICorner", playerBtn).CornerRadius = UDim.new(0,5)
+
+            playerBtn.MouseButton1Click:Connect(function()
+                if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+                    character.HumanoidRootPart.CFrame = CFrame.new(plr.Character.HumanoidRootPart.Position + Vector3.new(0,3,0))
+                end
+            end)
+        end
+    end
+
+    -- Ajuste la taille du canvas pour activer le scroll si besoin
+    playerList.CanvasSize = UDim2.new(0,0,0,listLayout.AbsoluteContentSize.Y)
+end
+
+-- Quand on clique sur "Infos Joueurs"
+infoBtn.MouseButton1Click:Connect(function()
+    settingsPage.Visible = false
+    infoPage.Visible = true
+    spawn(function()
+        while infoPage.Visible do
+            createPlayerButtons()
+            wait(1)
+        end
+    end)
+end)
+
 
 -- =========================
 -- TELEPORTATION VERS JOUEUR
