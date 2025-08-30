@@ -1,5 +1,5 @@
 game.StarterGui:SetCore("SendNotification", {
-    Title = "SHADOW HUB",
+    Title = "😈SHADOW HUB😈",
     Text = "chargement... 😈",
     Duration = 7
 })
