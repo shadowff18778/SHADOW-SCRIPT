@@ -443,7 +443,7 @@ end
 -- =========================
 -- FONCTIONS CHEATS
 -- =========================
-createButton("Vol", "flyEnabled", function(state)
+createButton("Vol","flyEnabled",function(state)
     local hrp = character:FindFirstChild("HumanoidRootPart")
     local humanoid = character:FindFirstChildOfClass("Humanoid")
     if not hrp or not humanoid then return end
@@ -453,12 +453,12 @@ createButton("Vol", "flyEnabled", function(state)
 
         local bv = Instance.new("BodyVelocity", hrp)
         bv.Name = "FlyVelocity"
-        bv.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+        bv.MaxForce = Vector3.new(1e5,1e5,1e5)
         bv.Velocity = Vector3.zero
 
         local bg = Instance.new("BodyGyro", hrp)
         bg.Name = "FlyGyro"
-        bg.MaxTorque = Vector3.new(1e5, 1e5, 1e5)
+        bg.MaxTorque = Vector3.new(1e5,1e5,1e5)
         bg.P = 1e4
         bg.CFrame = hrp.CFrame
 
@@ -475,16 +475,14 @@ createButton("Vol", "flyEnabled", function(state)
                 return
             end
 
-            -- Récupère la direction du joystick
             local moveDir = humanoid.MoveDirection
-            local camCF = camera.CFrame
+            local camCF = camera.CFrame  -- Récupérer la position de la caméra
 
             local targetVelocity
             if moveDir.Magnitude > 0 then
-                -- Déplace le personnage dans la direction de la caméra en fonction du joystick
-                local horizontalMove = (camCF.LookVector * moveDir.Z + camCF.RightVector * moveDir.X)
-                -- Ici on conserve l'orientation de la caméra tout en appliquant la direction du joystick
-                targetVelocity = horizontalMove.Unit * speed
+                -- On utilise les directions locales pour bouger, pas affecté par la caméra
+                local moveDirection = Vector3.new(moveDir.X, 0, moveDir.Z).unit  -- Mouvement horizontal dans l'espace local
+                targetVelocity = moveDirection * speed
             else
                 targetVelocity = Vector3.new(0, 0, 0)
             end
@@ -492,7 +490,7 @@ createButton("Vol", "flyEnabled", function(state)
             -- Lissage de la vitesse pour un arrêt progressif
             bv.Velocity = bv.Velocity:Lerp(targetVelocity, smoothing)
 
-            -- Garde l'orientation du personnage par rapport à la caméra
+            -- Garder l'orientation du personnage selon la caméra
             bg.CFrame = CFrame.new(hrp.Position, hrp.Position + camCF.LookVector)
         end)
     else
@@ -504,7 +502,6 @@ createButton("Vol", "flyEnabled", function(state)
         humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
     end
 end)
-
 
 
 
