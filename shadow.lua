@@ -453,17 +453,18 @@ createButton("Vol","flyEnabled",function(state)
 
         local bv = Instance.new("BodyVelocity", hrp)
         bv.Name = "FlyVelocity"
-        bv.MaxForce = Vector3.new(1e5,1e5,1e5)
+        bv.MaxForce = Vector3.new(1e5, 1e5, 1e5)
         bv.Velocity = Vector3.zero
 
         local bg = Instance.new("BodyGyro", hrp)
         bg.Name = "FlyGyro"
-        bg.MaxTorque = Vector3.new(1e5,1e5,1e5)
+        bg.MaxTorque = Vector3.new(1e5, 1e5, 1e5)
         bg.P = 1e4
         bg.CFrame = hrp.CFrame
 
         local speed = 60
-        local smoothing = 0.2  -- plus c’est petit, plus c’est réactif
+        local verticalSpeed = 30  -- vitesse de montée/descente
+        local smoothing = 0.2
 
         local conn
         conn = RS.Heartbeat:Connect(function(dt)
@@ -476,21 +477,20 @@ createButton("Vol","flyEnabled",function(state)
             end
 
             local moveDir = humanoid.MoveDirection
-            local camCF = camera.CFrame  -- Récupérer la position de la caméra
+            local camCF = camera.CFrame
 
-            local targetVelocity
-            if moveDir.Magnitude > 0 then
-                -- On utilise les directions locales pour bouger, pas affecté par la caméra
-                local moveDirection = Vector3.new(moveDir.X, 0, moveDir.Z).unit  -- Mouvement horizontal dans l'espace local
-                targetVelocity = moveDirection * speed
-            else
-                targetVelocity = Vector3.new(0, 0, 0)
-            end
+            -- Calcul du mouvement horizontal
+            local horizontalMove = (camCF.LookVector * moveDir.Z + camCF.RightVector * moveDir.X)
+            local targetVelocity = horizontalMove.Unit * speed
 
-            -- Lissage de la vitesse pour un arrêt progressif
+            -- Ajout du mouvement vertical basé sur la caméra
+            local verticalMove = camCF.UpVector * moveDir.Y
+            targetVelocity = targetVelocity + verticalMove * verticalSpeed
+
+            -- Lissage de la vitesse
             bv.Velocity = bv.Velocity:Lerp(targetVelocity, smoothing)
 
-            -- Garder l'orientation du personnage selon la caméra
+            -- Mise à jour de l'orientation du personnage en fonction de la caméra
             bg.CFrame = CFrame.new(hrp.Position, hrp.Position + camCF.LookVector)
         end)
     else
