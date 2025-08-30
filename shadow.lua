@@ -389,14 +389,16 @@ end)
 
 -- Signature RGB
 local signature = Instance.new("TextLabel", frame)
-signature.Size = UDim2.new(1,0,0,20)
-signature.Position = UDim2.new(0,0,1,-25)
+signature.Size = UDim2.new(1,0,0,15)        -- Hauteur plus petite
+signature.Position = UDim2.new(0,0,1,-20)   -- Légèrement remontée du bas
 signature.Text = "Powered by SHADOW"
 signature.Font = Enum.Font.GothamBold
-signature.TextSize = 16
+signature.TextSize = 12                       -- Taille du texte réduite
 signature.TextColor3 = Color3.fromRGB(255,0,0)
 signature.BackgroundTransparency = 1
-signature.TextScaled = true
+signature.TextScaled = false                  -- On utilise TextSize pour contrôler la taille
+signature.TextXAlignment = Enum.TextXAlignment.Center
+
 
 spawn(function()
     while true do
