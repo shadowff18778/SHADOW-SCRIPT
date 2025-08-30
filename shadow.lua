@@ -135,7 +135,7 @@ closeBtn.TextSize = 22
 Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0,8)
 
 local reopenBtn = Instance.new("TextButton", gui)
-reopenBtn.Size = UDim2.new(0,120,0,35)
+reopenBtn.Position = UDim2.new(0, 20, 0, 20)
 reopenBtn.Position = UDim2.new(0.5,-60,0.9,0)
 reopenBtn.Text = "SHADOW"
 reopenBtn.BackgroundColor3 = Color3.fromRGB(0,0,0)
