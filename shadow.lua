@@ -15,108 +15,56 @@ gui.Name = "ShadowHub"
 -- =========================
 -- PAGE MOT DE PASSE
 -- =========================
--- Code de la page principale...
--- ... (tout ce qui vient avant et après la fenêtre de mot de passe)
-
--- =========================
--- Fenêtre de mot de passe améliorée
--- =========================
 local passPage = Instance.new("Frame", gui)
 passPage.Size = UDim2.new(0, 380, 0, 250)
-passPage.Position = UDim2.new(0.5, 0, 0.5, 0)
-passPage.AnchorPoint = Vector2.new(0.5, 0.5)
-passPage.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-Instance.new("UICorner", passPage).CornerRadius = UDim.new(0, 15)
+passPage.Position = UDim2.new(0.5,0,0.5,0)
+passPage.AnchorPoint = Vector2.new(0.5,0.5)
+passPage.BackgroundColor3 = Color3.fromRGB(25,25,25)
+Instance.new("UICorner", passPage).CornerRadius = UDim.new(0,15)
 passPage.ClipsDescendants = true
-passPage.Visible = false  -- Initialement invisible, à afficher après animation
+passPage.Visible = true
 
--- Titre du mot de passe
 local passTitle = Instance.new("TextLabel", passPage)
-passTitle.Size = UDim2.new(1, -40, 0, 50)
-passTitle.Position = UDim2.new(0, 20, 0, 20)
+passTitle.Size = UDim2.new(1,-40,0,50)
+passTitle.Position = UDim2.new(0,20,0,20)
 passTitle.Text = "Mot de passe requis"
-passTitle.TextColor3 = Color3.fromRGB(255, 50, 50)
+passTitle.TextColor3 = Color3.fromRGB(255,50,50)
 passTitle.Font = Enum.Font.GothamBold
 passTitle.TextSize = 26
 passTitle.BackgroundTransparency = 1
 
--- Boîte de saisie du mot de passe avec animation de glissement
 local passBox = Instance.new("TextBox", passPage)
-passBox.Size = UDim2.new(0, 250, 0, 40)
-passBox.Position = UDim2.new(0.5, -125, 0.5, -20)
-passBox.PlaceholderText = "Entrez le mot de passe"
-passBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-passBox.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+passBox.Size = UDim2.new(0,250,0,40)
+passBox.Position = UDim2.new(0.5,-125,0.5,-20)
+passBox.PlaceholderText = "Entre le mot de passe"
+passBox.TextColor3 = Color3.fromRGB(255,255,255)
+passBox.BackgroundColor3 = Color3.fromRGB(45,45,45)
 passBox.Font = Enum.Font.Gotham
 passBox.TextSize = 20
-Instance.new("UICorner", passBox).CornerRadius = UDim.new(0, 10)
+Instance.new("UICorner", passBox).CornerRadius = UDim.new(0,10)
 
--- Bouton de validation du mot de passe avec effet de survol
 local submitBtn = Instance.new("TextButton", passPage)
-submitBtn.Size = UDim2.new(0, 140, 0, 40)
-submitBtn.Position = UDim2.new(0.5, -70, 0.7, 0)
+submitBtn.Size = UDim2.new(0,140,0,40)
+submitBtn.Position = UDim2.new(0.5,-70,0.7,0)
 submitBtn.Text = "Valider"
-submitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-submitBtn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+submitBtn.TextColor3 = Color3.fromRGB(255,255,255)
+submitBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
 submitBtn.Font = Enum.Font.GothamBold
 submitBtn.TextSize = 22
-Instance.new("UICorner", submitBtn).CornerRadius = UDim.new(0, 12)
+Instance.new("UICorner", submitBtn).CornerRadius = UDim.new(0,12)
 
--- Animation de la boîte de saisie pour la rendre plus fluide
-local function animatePassBox()
-    passBox.Position = UDim2.new(0.5, -125, 0.5, -40)
-    passBox:TweenPosition(UDim2.new(0.5, -125, 0.5, -20), "Out", "Sine", 0.5, true)
-end
+-- Loading stylé
+local loadingBarFrame = Instance.new("Frame", passPage)
+loadingBarFrame.Size = UDim2.new(0,300,0,20)
+loadingBarFrame.Position = UDim2.new(0.5,-150,0.85,0)
+loadingBarFrame.BackgroundColor3 = Color3.fromRGB(60,60,60)
+Instance.new("UICorner", loadingBarFrame).CornerRadius = UDim.new(0,10)
+loadingBarFrame.Visible = false
 
--- Fonction d'animation pour ouvrir la fenêtre de mot de passe
-local function openPassPage()
-    passPage.Visible = true
-    passPage.Position = UDim2.new(0.5, 0, 1.5, 0) -- Position initiale hors écran
-    passPage:TweenPosition(UDim2.new(0.5, 0, 0.5, 0), "Out", "Quart", 0.5, true) -- Animation de glissement
-    animatePassBox()  -- Animation de la boîte de saisie
-end
-
--- Animation du bouton de soumission avec survol
-submitBtn.MouseEnter:Connect(function()
-    submitBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-end)
-
-submitBtn.MouseLeave:Connect(function()
-    submitBtn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-end)
-
--- Fonction pour valider le mot de passe
-submitBtn.MouseButton1Click:Connect(function()
-    local enteredPassword = passBox.Text
-    local correctPassword = "admin123" -- Le mot de passe réel ici
-
-    -- Si le mot de passe est correct
-    if enteredPassword == correctPassword then
-        -- Animation du bouton de validation pour simuler le chargement
-        passTitle.Text = "Chargement..."
-        passTitle.TextColor3 = Color3.fromRGB(0, 255, 0) -- Changement de couleur
-
-        -- Animation de la fenêtre de mot de passe
-        passPage:TweenPosition(UDim2.new(0.5, 0, 1.5, 0), "In", "Quart", 0.5, true)
-        wait(0.5) -- Attendre la fin de l'animation avant de fermer
-
-        passPage.Visible = false -- Cacher la page de mot de passe
-
-        -- Code pour ouvrir la fenêtre principale ou effectuer l'action suivante
-        -- ...
-    else
-        -- Si le mot de passe est incorrect
-        passTitle.Text = "Mot de passe incorrect!"
-        passTitle.TextColor3 = Color3.fromRGB(255, 0, 0)
-        passBox.Text = ""
-        wait(2)
-        passTitle.Text = "Mot de passe requis"
-        passTitle.TextColor3 = Color3.fromRGB(255, 50, 50)
-    end
-end)
-
--- Ouvrir la page de mot de passe au lancement
-openPassPage()
+local loadingBar = Instance.new("Frame", loadingBarFrame)
+loadingBar.Size = UDim2.new(0,0,1,0)
+loadingBar.BackgroundColor3 = Color3.fromRGB(255,0,0)
+Instance.new("UICorner", loadingBar).CornerRadius = UDim.new(0,10)
 
 -- =========================
 -- FRAME PRINCIPALE
