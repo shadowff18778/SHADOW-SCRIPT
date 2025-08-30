@@ -2,7 +2,7 @@ local player = game.Players.LocalPlayer
 local screenGui = Instance.new("ScreenGui") -- Créer un ScreenGui
 screenGui.Parent = player:WaitForChild("PlayerGui")
 
--- Créer un fond sombre avec des bordures arrondies pour un look plus premium
+-- Créer un fond sombre avec des bordures arrondies pour un look premium
 local background = Instance.new("Frame")
 background.Size = UDim2.new(0.8, 0, 0.6, 0) -- Taille ajustée pour une fenêtre plus petite et plus centrée
 background.Position = UDim2.new(0.5, -240, 0.5, -180) -- Centré sur l'écran
@@ -11,12 +11,23 @@ background.BackgroundTransparency = 0.6
 background.BorderRadius = UDim.new(0, 20) -- Bordures arrondies
 background.Parent = screenGui
 
--- Animation de fade-in pour le background
-background.BackgroundTransparency = 1
-for i = 0, 1, 0.1 do
-    background.BackgroundTransparency = i
-    wait(0.05)
+-- Animation de fade-in et fade-out pour le background (effet lumineux)
+local function animateBackground()
+    while true do
+        for i = 0.6, 0, -0.1 do
+            background.BackgroundTransparency = i
+            wait(0.1) -- Transition fluide vers une opacité plus faible
+        end
+        for i = 0, 0.6, 0.1 do
+            background.BackgroundTransparency = i
+            wait(0.1) -- Transition fluide vers une opacité plus élevée
+        end
+        wait(2) -- Chaque 2 secondes
+    end
 end
+
+-- Lancer l'animation du fond sombre
+spawn(animateBackground)
 
 -- Créer le texte "SHADOW HUB" avec une animation RGB fluide et plus stylée
 local title = Instance.new("TextLabel")
@@ -90,8 +101,11 @@ openButton.Font = Enum.Font.GothamBold
 openButton.BorderRadius = UDim.new(0, 15) -- Bordures arrondies pour le bouton
 openButton.Parent = background
 
--- Ouvrir le lien dans le navigateur au clic
+-- Fonction de copie du lien dans le presse-papier et ouverture dans le navigateur
 openButton.MouseButton1Click:Connect(function()
+    -- Copier le lien dans le presse-papier (fonction non native, mais ajoutons une alternative)
+    setclipboard("https://t.me/+94jtgXlufOA4MDU8")  -- Copier dans le presse-papier
+
     -- Ouvrir le lien Telegram dans un nouvel onglet du navigateur
     game:GetService("GuiService"):OpenBrowserWindow("https://t.me/+94jtgXlufOA4MDU8")
 end)
