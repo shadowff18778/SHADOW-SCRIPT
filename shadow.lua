@@ -56,7 +56,7 @@ message.TextWrapped = true
 message.TextYAlignment = Enum.TextYAlignment.Top
 
 -- Créer le texte "Contacter le développeur" avec lien
-local contactText = Instance.new("TextLabel")
+local contactText = Instance.new("TextButton")
 contactText.Size = UDim2.new(0, 500, 0, 30)
 contactText.Position = UDim2.new(0.5, -250, 0, 170) -- Centré sous le message
 contactText.Text = "Contacter le développeur sur\nhttps://t.me/+94jtgXlufOA4MDU8"
@@ -68,22 +68,24 @@ contactText.Parent = background
 contactText.TextWrapped = true
 contactText.TextYAlignment = Enum.TextYAlignment.Top
 
--- Créer un bouton pour copier le lien et ouvrir le navigateur
-local copyButton = Instance.new("TextButton")
-copyButton.Size = UDim2.new(0, 250, 0, 40)
-copyButton.Position = UDim2.new(0.5, -125, 0, 230) -- Centré sous le lien
-copyButton.Text = "Copier et Ouvrir Lien"
-copyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-copyButton.TextSize = 18
-copyButton.BackgroundColor3 = Color3.fromRGB(0, 121, 255) -- Bleu pour le bouton
-copyButton.Font = Enum.Font.Gotham
-copyButton.Parent = background
+-- Lorsqu'on clique sur le lien, ouvrir le navigateur
+contactText.MouseButton1Click:Connect(function()
+    game:GetService("GuiService"):OpenBrowserWindow("https://t.me/+94jtgXlufOA4MDU8")
+end)
 
--- Copier le lien et ouvrir le navigateur au clic
-copyButton.MouseButton1Click:Connect(function()
-    -- Copier le lien
-    setclipboard("https://t.me/+94jtgXlufOA4MDU8")
-    -- Ouvrir le lien dans le navigateur
+-- Créer un bouton pour ouvrir le lien directement dans le navigateur
+local openButton = Instance.new("TextButton")
+openButton.Size = UDim2.new(0, 250, 0, 40)
+openButton.Position = UDim2.new(0.5, -125, 0, 230) -- Centré sous le lien
+openButton.Text = "Ouvrir Lien"
+openButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+openButton.TextSize = 18
+openButton.BackgroundColor3 = Color3.fromRGB(0, 121, 255) -- Bleu pour le bouton
+openButton.Font = Enum.Font.Gotham
+openButton.Parent = background
+
+-- Ouvrir le lien dans le navigateur au clic
+openButton.MouseButton1Click:Connect(function()
     game:GetService("GuiService"):OpenBrowserWindow("https://t.me/+94jtgXlufOA4MDU8")
 end)
 
