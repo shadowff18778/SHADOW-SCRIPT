@@ -158,7 +158,7 @@ settingsPage.BackgroundTransparency = 1
 settingsPage.Visible = false
 
 -- =========================
--- INFOS JOUEUR (corrigé avec Scroll)
+-- INFOS JOUEUR (avec Scroll et téléport)
 -- =========================
 local infoBtn = Instance.new("TextButton", settingsPage)
 infoBtn.Size = UDim2.new(0,180,0,35)
@@ -252,50 +252,6 @@ infoBtn.MouseButton1Click:Connect(function()
     infoPage.Visible = true
     spawn(function()
         while infoPage.Visible do
-            createPlayerButtons()
-            wait(1)
-        end
-    end)
-end)
-
-
--- =========================
--- TELEPORTATION VERS JOUEUR
--- =========================
-local function createPlayerButtons()
-    infoText.Text = "👤 Joueurs dans le jeu :\n"
-    for i, plr in pairs(game.Players:GetPlayers()) do
-        if plr ~= player then
-            local playerBtn = Instance.new("TextButton", infoPage)
-            playerBtn.Size = UDim2.new(1,-40,0,30)
-            playerBtn.Position = UDim2.new(0,20,0,20 + (i-1)*35)
-            playerBtn.Text = plr.Name
-            playerBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
-            playerBtn.TextColor3 = Color3.fromRGB(255,255,255)
-            playerBtn.Font = Enum.Font.Gotham
-            playerBtn.TextSize = 18
-            Instance.new("UICorner", playerBtn).CornerRadius = UDim.new(0,5)
-
-            playerBtn.MouseButton1Click:Connect(function()
-                if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-                    character.HumanoidRootPart.CFrame = CFrame.new(plr.Character.HumanoidRootPart.Position + Vector3.new(0,3,0))
-                end
-            end)
-        end
-    end
-end
-
-infoBtn.MouseButton1Click:Connect(function()
-    settingsPage.Visible = false
-    infoPage.Visible = true
-    spawn(function()
-        while infoPage.Visible do
-            -- Supprimer les anciens boutons pour éviter les doublons
-            for _, child in pairs(infoPage:GetChildren()) do
-                if child:IsA("TextButton") and child ~= backInfoBtn then
-                    child:Destroy()
-                end
-            end
             createPlayerButtons()
             wait(1)
         end
