@@ -17,110 +17,54 @@ gui.Name = "ShadowHub"
 -- =========================
 local passPage = Instance.new("Frame", gui)
 passPage.Size = UDim2.new(0, 380, 0, 250)
-passPage.Position = UDim2.new(0.5, 0, 0.5, 0)
-passPage.AnchorPoint = Vector2.new(0.5, 0.5)
-passPage.BackgroundColor3 = Color3.fromRGB(30, 30, 30)  -- Plus sombre et élégant
-passPage.BackgroundTransparency = 0.1  -- Légère transparence pour un effet moderne
-Instance.new("UICorner", passPage).CornerRadius = UDim.new(0, 15)
+passPage.Position = UDim2.new(0.5,0,0.5,0)
+passPage.AnchorPoint = Vector2.new(0.5,0.5)
+passPage.BackgroundColor3 = Color3.fromRGB(25,25,25)
+Instance.new("UICorner", passPage).CornerRadius = UDim.new(0,15)
 passPage.ClipsDescendants = true
 passPage.Visible = true
 
--- Ombre portée pour un effet plus élégant
-local shadow = Instance.new("Frame", gui)
-shadow.Size = UDim2.new(0, 380, 0, 250)
-shadow.Position = UDim2.new(0.5, 5, 0.5, 5)
-shadow.AnchorPoint = Vector2.new(0.5, 0.5)
-shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-shadow.BackgroundTransparency = 0.4
-shadow.ZIndex = 0
-
 local passTitle = Instance.new("TextLabel", passPage)
-passTitle.Size = UDim2.new(1, -40, 0, 50)
-passTitle.Position = UDim2.new(0, 20, 0, 20)
+passTitle.Size = UDim2.new(1,-40,0,50)
+passTitle.Position = UDim2.new(0,20,0,20)
 passTitle.Text = "Mot de passe requis"
-passTitle.TextColor3 = Color3.fromRGB(255, 50, 50)  -- Titre en rouge vif
+passTitle.TextColor3 = Color3.fromRGB(255,50,50)
 passTitle.Font = Enum.Font.GothamBold
 passTitle.TextSize = 26
-passTitle.TextStrokeTransparency = 0.6  -- Contour du texte
-passTitle.TextStrokeColor3 = Color3.fromRGB(255, 0, 0)  -- Contour rouge
-passTitle.TextShadow = true  -- Ombre portée sur le texte
-passTitle.TextShadowColor3 = Color3.fromRGB(0, 0, 0)  -- Ombre noire
 passTitle.BackgroundTransparency = 1
 
 local passBox = Instance.new("TextBox", passPage)
-passBox.Size = UDim2.new(0, 250, 0, 40)
-passBox.Position = UDim2.new(0.5, -125, 0.5, -20)
-passBox.PlaceholderText = "Entrez le mot de passe"
-passBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-passBox.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+passBox.Size = UDim2.new(0,250,0,40)
+passBox.Position = UDim2.new(0.5,-125,0.5,-20)
+passBox.PlaceholderText = "Entre le mot de passe"
+passBox.TextColor3 = Color3.fromRGB(255,255,255)
+passBox.BackgroundColor3 = Color3.fromRGB(45,45,45)
 passBox.Font = Enum.Font.Gotham
 passBox.TextSize = 20
-passBox.BorderSizePixel = 0  -- Pas de bordure
-Instance.new("UICorner", passBox).CornerRadius = UDim.new(0, 10)
-
--- Dégradé sur la boîte de texte pour un effet 3D
-local gradient = Instance.new("UIGradient", passBox)
-gradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 60, 60)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(45, 45, 45))
-})
-gradient.Rotation = 45  -- Orientation du dégradé
-
--- Focus pour la boîte de texte
-passBox.Focused:Connect(function()
-    passBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)  -- Changement de couleur au focus
-end)
-passBox.FocusLost:Connect(function()
-    passBox.BackgroundColor3 = Color3.fromRGB(45, 45, 45)  -- Retour à la couleur initiale
-end)
+Instance.new("UICorner", passBox).CornerRadius = UDim.new(0,10)
 
 local submitBtn = Instance.new("TextButton", passPage)
-submitBtn.Size = UDim2.new(0, 140, 0, 40)
-submitBtn.Position = UDim2.new(0.5, -70, 0.7, 0)
+submitBtn.Size = UDim2.new(0,140,0,40)
+submitBtn.Position = UDim2.new(0.5,-70,0.7,0)
 submitBtn.Text = "Valider"
-submitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-submitBtn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+submitBtn.TextColor3 = Color3.fromRGB(255,255,255)
+submitBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
 submitBtn.Font = Enum.Font.GothamBold
 submitBtn.TextSize = 22
-submitBtn.TextStrokeTransparency = 0.7  -- Contour pour le texte du bouton
-submitBtn.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)  -- Contour blanc
-Instance.new("UICorner", submitBtn).CornerRadius = UDim.new(0, 12)
-
--- Ajout d'un dégradé sur le bouton
-local btnGradient = Instance.new("UIGradient", submitBtn)
-btnGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(80, 80, 80)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(50, 50, 50))
-})
-
--- Effet au survol (hover)
-submitBtn.MouseEnter:Connect(function()
-    submitBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)  -- Changement de couleur au survol
-end)
-submitBtn.MouseLeave:Connect(function()
-    submitBtn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)  -- Retour à la couleur d'origine
-end)
+Instance.new("UICorner", submitBtn).CornerRadius = UDim.new(0,12)
 
 -- Loading stylé
 local loadingBarFrame = Instance.new("Frame", passPage)
-loadingBarFrame.Size = UDim2.new(0, 300, 0, 20)
-loadingBarFrame.Position = UDim2.new(0.5, -150, 0.85, 0)
-loadingBarFrame.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-Instance.new("UICorner", loadingBarFrame).CornerRadius = UDim.new(0, 10)
+loadingBarFrame.Size = UDim2.new(0,300,0,20)
+loadingBarFrame.Position = UDim2.new(0.5,-150,0.85,0)
+loadingBarFrame.BackgroundColor3 = Color3.fromRGB(60,60,60)
+Instance.new("UICorner", loadingBarFrame).CornerRadius = UDim.new(0,10)
 loadingBarFrame.Visible = false
 
 local loadingBar = Instance.new("Frame", loadingBarFrame)
-loadingBar.Size = UDim2.new(0, 0, 1, 0)
-loadingBar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-Instance.new("UICorner", loadingBar).CornerRadius = UDim.new(0, 10)
-
--- Dégradé dynamique sur la barre de chargement
-local loadingGradient = Instance.new("UIGradient", loadingBar)
-loadingGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 255, 255))
-})
-loadingGradient.Rotation = 90  -- Orientation du dégradé
+loadingBar.Size = UDim2.new(0,0,1,0)
+loadingBar.BackgroundColor3 = Color3.fromRGB(255,0,0)
+Instance.new("UICorner", loadingBar).CornerRadius = UDim.new(0,10)
 
 -- =========================
 -- FRAME PRINCIPALE
