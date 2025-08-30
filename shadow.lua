@@ -43,51 +43,6 @@ passBox.Font = Enum.Font.Gotham
 passBox.TextSize = 20
 Instance.new("UICorner", passBox).CornerRadius = UDim.new(0,10)
 
--- Animation couleur au focus
-passBox.Focused:Connect(function()
-    passBox.BackgroundColor3 = Color3.fromRGB(70,70,70)
-end)
-passBox.FocusLost:Connect(function()
-    passBox.BackgroundColor3 = Color3.fromRGB(45,45,45)
-end)
-
--- Glow autour du TextBox
-local glow = Instance.new("Frame", passBox)
-glow.Size = UDim2.new(1,4,1,4)
-glow.Position = UDim2.new(0,-2,0,-2)
-glow.ZIndex = passBox.ZIndex - 1
-glow.BackgroundColor3 = Color3.fromRGB(255,0,0)
-glow.BorderSizePixel = 0
-Instance.new("UICorner", glow).CornerRadius = UDim.new(0,10)
-
-spawn(function()
-    while passPage.Parent do
-        for i=0,1,0.02 do
-            glow.BackgroundTransparency = 0.5 + 0.5*math.sin(i*math.pi*2)
-            wait(0.02)
-        end
-    end
-end)
-
--- Placeholder animé
-local placeholder = Instance.new("TextLabel", passBox)
-placeholder.Size = UDim2.new(1,0,1,0)
-placeholder.Text = "Entre le mot de passe"
-placeholder.TextColor3 = Color3.fromRGB(150,150,150)
-placeholder.BackgroundTransparency = 1
-placeholder.Font = Enum.Font.Gotham
-placeholder.TextSize = 18
-placeholder.TextXAlignment = Enum.TextXAlignment.Left
-
-passBox:GetPropertyChangedSignal("Text"):Connect(function()
-    if passBox.Text ~= "" then
-        placeholder.Visible = false
-    else
-        placeholder.Visible = true
-    end
-end)
-
-
 local submitBtn = Instance.new("TextButton", passPage)
 submitBtn.Size = UDim2.new(0,140,0,40)
 submitBtn.Position = UDim2.new(0.5,-70,0.7,0)
@@ -586,9 +541,7 @@ submitBtn.MouseButton1Click:Connect(function()
         passPage:Destroy()
         openFrame(frame)
     else
-        passBox.Text = ""                       -- vide le champ
-        placeholder.Text = "Mot de passe incorrect"  -- affiche le message sur le placeholder
-        placeholder.TextColor3 = Color3.fromRGB(255,0,0) -- rouge
-        placeholder.Visible = true              -- assure qu’il est visible
+        passBox.Text = ""
+        passBox.PlaceholderText = "Mot de passe incorrect"
     end
 end)
