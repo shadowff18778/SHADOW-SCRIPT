@@ -1,15 +1,17 @@
 local player = game.Players.LocalPlayer
-local screenGui = Instance.new("ScreenGui") -- Créer un ScreenGui
-screenGui.Parent = player:WaitForChild("PlayerGui")
+local playerGui = player:WaitForChild("PlayerGui") -- Assurez-vous que PlayerGui est bien trouvé
 
--- Créer un fond sombre avec des bordures arrondies pour un look premium
+local screenGui = Instance.new("ScreenGui") -- Créer un ScreenGui
+screenGui.Parent = playerGui -- Assurez-vous que le ScreenGui est bien parenté à PlayerGui
+
+-- Créer un fond sombre avec des bordures arrondies
 local background = Instance.new("Frame")
 background.Size = UDim2.new(0.8, 0, 0.6, 0) -- Taille ajustée pour une fenêtre plus petite et plus centrée
 background.Position = UDim2.new(0.5, -240, 0.5, -180) -- Centré sur l'écran
 background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 background.BackgroundTransparency = 0.6
 background.BorderRadius = UDim.new(0, 20) -- Bordures arrondies
-background.Parent = screenGui
+background.Parent = screenGui -- Ajout au ScreenGui
 
 -- Animation de fade-in et fade-out pour le background (effet lumineux)
 local function animateBackground()
