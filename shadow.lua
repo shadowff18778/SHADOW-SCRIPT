@@ -1,3 +1,5 @@
+-- SHADOW HUB SCRIPT
+
 game.StarterGui:SetCore("SendNotification", {
     Title = "SHADOW HUB",
     Text = "Prépare-toi à dominer 😈",
@@ -8,6 +10,7 @@ local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local camera = workspace.CurrentCamera
 local RS = game:GetService("RunService")
+local Players = game:GetService("Players")
 
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "ShadowHub"
@@ -157,12 +160,18 @@ settingsPage.Position = UDim2.new(0,0,0,45)
 settingsPage.BackgroundTransparency = 1
 settingsPage.Visible = false
 
+local infoPage = Instance.new("Frame", frame)
+infoPage.Size = UDim2.new(1,0,1,-45)
+infoPage.Position = UDim2.new(0,0,0,45)
+infoPage.BackgroundTransparency = 1
+infoPage.Visible = false
+
 -- =========================
 -- BOUTON INFOS JOUEURS DANS SETTINGS
 -- =========================
 local infoBtn = Instance.new("TextButton", settingsPage)
 infoBtn.Size = UDim2.new(0,180,0,35)
-infoBtn.Position = UDim2.new(0.5,-90,0.2,0) -- au-dessus du bouton retour
+infoBtn.Position = UDim2.new(0.5,-90,0.2,0)
 infoBtn.Text = "Infos Joueurs"
 infoBtn.BackgroundColor3 = Color3.fromRGB(60,60,60)
 infoBtn.TextColor3 = Color3.fromRGB(255,255,255)
@@ -170,12 +179,7 @@ infoBtn.Font = Enum.Font.GothamBold
 infoBtn.TextSize = 20
 Instance.new("UICorner", infoBtn).CornerRadius = UDim.new(0,10)
 
-local infoPage = Instance.new("Frame", frame)
-infoPage.Size = UDim2.new(1,0,1,-45)
-infoPage.Position = UDim2.new(0,0,0,45)
-infoPage.BackgroundTransparency = 1
-infoPage.Visible = false
-
+-- Bouton retour info
 local backInfoBtn = Instance.new("TextButton", infoPage)
 backInfoBtn.Size = UDim2.new(0,120,0,35)
 backInfoBtn.Position = UDim2.new(0.5,-60,1,-50)
@@ -190,40 +194,56 @@ backInfoBtn.MouseButton1Click:Connect(function()
     settingsPage.Visible = true
 end)
 
-local infoText = Instance.new("TextLabel", infoPage)
-infoText.Size = UDim2.new(1,-40,1,-60)
-infoText.Position = UDim2.new(0,20,0,20)
-infoText.TextColor3 = Color3.fromRGB(200,200,200)
-infoText.TextWrapped = true
-infoText.TextYAlignment = Enum.TextYAlignment.Top
-infoText.TextXAlignment = Enum.TextXAlignment.Left
-infoText.Font = Enum.Font.Gotham
-infoText.TextSize = 18
-infoText.BackgroundTransparency = 1
-
+-- =========================
+-- INFOS JOUEURS SUR LEURS TÊTES
+-- =========================
 infoBtn.MouseButton1Click:Connect(function()
     settingsPage.Visible = false
     infoPage.Visible = true
-    spawn(function()
-        while infoPage.Visible do
-            local text = "👤 Joueurs dans le jeu :\n"
-            for i, plr in pairs(game.Players:GetPlayers()) do
-                local robux = "N/A"
-                if plr.GetRobuxBalance then
-                    local success, balance = pcall(function()
-                        return plr:GetRobuxBalance()
-                    end)
-                    if success then robux = balance end
+
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+            -- Supprime l'ancien Billboard
+            local old = plr.Character:FindFirstChild("ShadowBillboard")
+            if old then old:Destroy() end
+
+            local hrp = plr.Character.HumanoidRootPart
+            local billboard = Instance.new("BillboardGui")
+            billboard.Name = "ShadowBillboard"
+            billboard.Adornee = hrp
+            billboard.Size = UDim2.new(0,200,0,50)
+            billboard.StudsOffset = Vector3.new(0,3,0)
+            billboard.AlwaysOnTop = true
+            billboard.Parent = plr.Character
+
+            local label = Instance.new("TextLabel", billboard)
+            label.Size = UDim2.new(1,0,1,0)
+            label.BackgroundTransparency = 1
+            label.Font = Enum.Font.GothamBold
+            label.TextSize = 18
+            label.TextColor3 = Color3.fromRGB(255,0,0)
+
+            -- Met à jour le texte en continu
+            spawn(function()
+                while label.Parent do
+                    local robux = "N/A"
+                    if plr.GetRobuxBalance then
+                        local success, balance = pcall(function()
+                            return plr:GetRobuxBalance()
+                        end)
+                        if success then robux = balance end
+                    end
+                    label.Text = string.format("%s | Robux: %s", plr.Name, robux)
+                    wait(1)
                 end
-                text = text..string.format("%d. %s | Robux: %s\n", i, plr.Name, robux)
-            end
-            infoText.Text = text
-            wait(1)
+            end)
         end
-    end)
+    end
 end)
 
+-- =========================
 -- BACK BUTTON SETTINGS
+-- =========================
 local backBtn = Instance.new("TextButton", settingsPage)
 backBtn.Size = UDim2.new(0,120,0,35)
 backBtn.Position = UDim2.new(0.5,-60,1,-50)
@@ -253,7 +273,9 @@ reopenBtn.MouseButton1Click:Connect(function()
     reopenBtn.Visible = false
 end)
 
--- Signature RGB
+-- =========================
+-- SIGNATURE RGB
+-- =========================
 local signature = Instance.new("TextLabel", frame)
 signature.Size = UDim2.new(1,0,0,20)
 signature.Position = UDim2.new(0,0,1,-25)
@@ -273,7 +295,9 @@ spawn(function()
     end
 end)
 
--- Infos joueur Settings
+-- =========================
+-- INFOS JOUEUR DANS SETTINGS
+-- =========================
 local infoText2 = Instance.new("TextLabel", settingsPage)
 infoText2.Size = UDim2.new(1,-40,0,200)
 infoText2.Position = UDim2.new(0,20,0,20)
@@ -323,7 +347,7 @@ local function createButton(name,toggleVar,callback)
 end
 
 -- =========================
--- FONCTIONS CHEATS (inchangées)
+-- FONCTIONS CHEATS
 -- =========================
 -- Fly
 createButton("Vol","flyEnabled",function(state)
