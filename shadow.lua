@@ -1,7 +1,7 @@
 game.StarterGui:SetCore("SendNotification", {
     Title = "SHADOW HUB",
-    Text = "Prépare-toi à dominer 😈",
-    Duration = 5
+    Text = "chargement... 😈",
+    Duration = 7
 })
 
 local player = game.Players.LocalPlayer
