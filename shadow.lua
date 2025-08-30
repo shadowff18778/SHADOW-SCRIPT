@@ -10,7 +10,7 @@ background.BackgroundTransparency = 0.6
 background.Position = UDim2.new(0, 0, 0, 0) -- Position en haut de l'écran
 background.Parent = screenGui
 
--- Créer le texte "SHADOW HUB" avec une animation RGB
+-- Créer le texte "SHADOW HUB" avec une animation RGB + mouvement
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(0, 400, 0, 50)
 title.Position = UDim2.new(0.5, -200, 0, 50) -- Centré en haut
@@ -21,26 +21,21 @@ title.Font = Enum.Font.GothamBold
 title.BackgroundTransparency = 1
 title.Parent = background
 
--- Animation du texte (changement de couleur en mode RGB plus rapide)
-local function animateTextColor()
+-- Animation du texte "SHADOW HUB" (changement de couleur et déplacement)
+local function animateTitle()
+    local i = 0
     while true do
-        for r = 0, 255 do
-            title.TextColor3 = Color3.fromRGB(r, 0, 255 - r) -- Effet RGB rapide
-            wait(0.05)
-        end
-        for g = 0, 255 do
-            title.TextColor3 = Color3.fromRGB(255 - g, g, 0) -- Effet RGB rapide
-            wait(0.05)
-        end
-        for b = 0, 255 do
-            title.TextColor3 = Color3.fromRGB(0, 255 - b, b) -- Effet RGB rapide
-            wait(0.05)
-        end
+        -- Animation de changement de couleur
+        title.TextColor3 = Color3.fromRGB(math.random(100, 255), math.random(0, 255), math.random(0, 255))
+        -- Animation de déplacement (gauche-droite)
+        title.Position = UDim2.new(0.5, -200 + math.sin(i) * 5, 0, 50)
+        i = i + 0.1
+        wait(0.05)
     end
 end
 
 -- Lancer l'animation du texte en arrière-plan
-spawn(animateTextColor)
+spawn(animateTitle)
 
 -- Créer le texte "MOD PROBLEME SERVEUR" en rouge
 local message = Instance.new("TextLabel")
@@ -55,7 +50,7 @@ message.Parent = background
 message.TextWrapped = true
 message.TextYAlignment = Enum.TextYAlignment.Top
 
--- Créer le texte "Contacter le développeur" avec lien
+-- Créer le texte "Contacter le développeur" en bouton cliquable
 local contactText = Instance.new("TextButton")
 contactText.Size = UDim2.new(0, 500, 0, 30)
 contactText.Position = UDim2.new(0.5, -250, 0, 170) -- Centré sous le message
@@ -64,9 +59,9 @@ contactText.TextColor3 = Color3.fromRGB(0, 121, 255) -- Couleur bleue pour le li
 contactText.TextSize = 20
 contactText.Font = Enum.Font.Gotham
 contactText.BackgroundTransparency = 1
-contactText.Parent = background
 contactText.TextWrapped = true
 contactText.TextYAlignment = Enum.TextYAlignment.Top
+contactText.Parent = background
 
 -- Lorsqu'on clique sur le lien, ouvrir le navigateur
 contactText.MouseButton1Click:Connect(function()
