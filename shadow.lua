@@ -449,9 +449,9 @@ createButton("Vol","flyEnabled",function(state)
     if not hrp or not humanoid then return end
 
     if state then
-        -- Désactiver les contraintes physiques normales
+        -- Désactiver les contraintes normales
         humanoid.PlatformStand = true
-        
+
         local bv = Instance.new("BodyVelocity", hrp)
         bv.Name = "FlyVelocity"
         bv.MaxForce = Vector3.new(1e5,1e5,1e5)
@@ -476,6 +476,8 @@ createButton("Vol","flyEnabled",function(state)
             local moveDir = humanoid.MoveDirection
             local camCF = camera.CFrame
             local horizontalMove = (camCF.LookVector * moveDir.Z + camCF.RightVector * moveDir.X)
+
+            -- Arrêt instantané si pas de mouvement
             if horizontalMove.Magnitude > 0 then
                 bv.Velocity = horizontalMove.Unit * 60 + Vector3.new(0, bv.Velocity.Y, 0)
             else
@@ -498,6 +500,7 @@ createButton("Vol","flyEnabled",function(state)
         humanoid:ChangeState(Enum.HumanoidStateType.GettingUp) -- permet de sauter à nouveau
     end
 end)
+
 
 
 -- Speed
