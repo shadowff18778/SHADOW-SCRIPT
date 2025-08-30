@@ -1,23 +1,29 @@
+-- Création de la fenêtre
 local player = game.Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Créer le ScreenGui et l'ajouter au PlayerGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Parent = playerGui
 
--- Créer un fond sombre avec bordures arrondies
+-- Création du fond sombre avec une animation de fondu (fade-in)
 local background = Instance.new("Frame")
-background.Size = UDim2.new(0.8, 0, 0.6, 0)  -- Fenêtre centrée
-background.Position = UDim2.new(0.5, -240, 0.5, -180)  -- Centré sur l'écran
+background.Size = UDim2.new(0.8, 0, 0.6, 0) -- Taille de la fenêtre
+background.Position = UDim2.new(0.5, -240, 0.5, -180) -- Centrée à l'écran
 background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-background.BackgroundTransparency = 0.6
-background.BorderRadius = UDim.new(0, 20)  -- Bordures arrondies
+background.BackgroundTransparency = 1 -- Initialement transparent
+background.BorderRadius = UDim.new(0, 20) -- Bordures arrondies
 background.Parent = screenGui
 
--- Créer le texte "SHADOW HUB" avec animation RGB fluide
+-- Animation de fade-in pour le background
+for i = 0, 0.6, 0.1 do
+    background.BackgroundTransparency = i
+    wait(0.05)
+end
+
+-- Création du texte "SHADOW HUB" avec une animation de couleur fluide
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(0, 500, 0, 60)
-title.Position = UDim2.new(0.5, -250, 0, 20)  -- Centré en haut
+title.Position = UDim2.new(0.5, -250, 0, 20) -- Centré en haut
 title.Text = "SHADOW HUB"
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
 title.TextSize = 48
@@ -26,7 +32,7 @@ title.BackgroundTransparency = 1
 title.TextAlignment = Enum.TextAlignment.Center
 title.Parent = background
 
--- Animation RGB pour le texte "SHADOW HUB"
+-- Fonction pour animer le titre avec un changement de couleur RGB fluide
 local function animateTitle()
     local i = 0
     while true do
@@ -35,18 +41,17 @@ local function animateTitle()
         local b = math.sin(i + math.pi) * 127 + 128
         title.TextColor3 = Color3.fromRGB(r, g, b)
         i = i + 0.05
-        wait(0.1)  -- Fluidité de l'animation
+        wait(0.1) -- Changement fluide des couleurs
     end
 end
+spawn(animateTitle)
 
-spawn(animateTitle)  -- Lancer l'animation
-
--- Créer le message "MOD PROBLEME SERVEUR"
+-- Création du message "MOD PROBLEME SERVEUR"
 local message = Instance.new("TextLabel")
 message.Size = UDim2.new(0, 600, 0, 40)
-message.Position = UDim2.new(0.5, -300, 0, 100)  -- Centré sous le titre
+message.Position = UDim2.new(0.5, -300, 0, 100) -- Centré sous le titre
 message.Text = "MOD PROBLEME SERVEUR\nVeuillez attendre la nouvelle mise à jour"
-message.TextColor3 = Color3.fromRGB(255, 0, 0)  -- Texte en rouge
+message.TextColor3 = Color3.fromRGB(255, 0, 0) -- Texte rouge
 message.TextSize = 24
 message.Font = Enum.Font.Gotham
 message.BackgroundTransparency = 1
@@ -54,12 +59,12 @@ message.TextWrapped = true
 message.TextAlignment = Enum.TextAlignment.Center
 message.Parent = background
 
--- Créer le bouton pour "Contacter le Développeur"
+-- Création du bouton "Contacter le Développeur"
 local contactButton = Instance.new("TextButton")
 contactButton.Size = UDim2.new(0, 600, 0, 40)
-contactButton.Position = UDim2.new(0.5, -300, 0, 170)  -- Centré sous le message
+contactButton.Position = UDim2.new(0.5, -300, 0, 170) -- Centré sous le message
 contactButton.Text = "Contacter le développeur sur\nhttps://t.me/+94jtgXlufOA4MDU8"
-contactButton.TextColor3 = Color3.fromRGB(0, 121, 255)  -- Lien en bleu
+contactButton.TextColor3 = Color3.fromRGB(0, 121, 255) -- Bleu pour le lien
 contactButton.TextSize = 24
 contactButton.Font = Enum.Font.Gotham
 contactButton.BackgroundTransparency = 1
@@ -67,45 +72,36 @@ contactButton.TextWrapped = true
 contactButton.TextAlignment = Enum.TextAlignment.Center
 contactButton.Parent = background
 
--- Lorsque le lien est cliqué, ouvrir le navigateur
+-- Fonction pour ouvrir le lien dans le navigateur
 contactButton.MouseButton1Click:Connect(function()
-    -- Ouvrir le lien Telegram dans le navigateur
     game:GetService("GuiService"):OpenBrowserWindow("https://t.me/+94jtgXlufOA4MDU8")
 end)
 
--- Créer un bouton "Ouvrir Lien" pour ouvrir directement le lien
+-- Création du bouton "Ouvrir Lien"
 local openButton = Instance.new("TextButton")
 openButton.Size = UDim2.new(0, 300, 0, 50)
-openButton.Position = UDim2.new(0.5, -150, 0, 240)  -- Centré sous le lien
+openButton.Position = UDim2.new(0.5, -150, 0, 240) -- Centré sous le lien
 openButton.Text = "Ouvrir Lien"
 openButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 openButton.TextSize = 22
-openButton.BackgroundColor3 = Color3.fromRGB(0, 121, 255)  -- Bouton bleu
+openButton.BackgroundColor3 = Color3.fromRGB(0, 121, 255) -- Bleu pour le bouton
 openButton.Font = Enum.Font.GothamBold
-openButton.BorderRadius = UDim.new(0, 15)  -- Bordures arrondies
+openButton.BorderRadius = UDim.new(0, 15)
 openButton.Parent = background
 
--- Lorsque le bouton "Ouvrir Lien" est cliqué, ouvrir le lien
+-- Fonction pour ouvrir le lien directement avec le bouton
 openButton.MouseButton1Click:Connect(function()
-    -- Ouvrir le lien Telegram dans le navigateur
     game:GetService("GuiService"):OpenBrowserWindow("https://t.me/+94jtgXlufOA4MDU8")
 end)
 
--- Créer l'animation de fade-in pour l'arrière-plan
-background.BackgroundTransparency = 1
-for i = 0, 0.6, 0.1 do
-    background.BackgroundTransparency = i
-    wait(0.05)
-end
-
--- Afficher la fenêtre pendant 10 secondes
+-- Suppression de la fenêtre après 10 secondes avec animation de fade-out
 wait(10)
 
--- Créer l'animation de fade-out pour la fenêtre
+-- Animation de fade-out pour le background
 for i = 0.6, 1, 0.1 do
     background.BackgroundTransparency = i
     wait(0.05)
 end
 
--- Détruire le ScreenGui après la disparition
+-- Supprimer le screenGui après l'animation
 screenGui:Destroy()
