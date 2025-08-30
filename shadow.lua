@@ -10,7 +10,7 @@ background.BackgroundTransparency = 0.6
 background.Position = UDim2.new(0, 0, 0, 0) -- Position en haut de l'écran
 background.Parent = screenGui
 
--- Créer le texte "SHADOW HUB" avec une animation RGB + mouvement
+-- Créer le texte "SHADOW HUB" avec une animation RGB plus douce
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(0, 400, 0, 50)
 title.Position = UDim2.new(0.5, -200, 0, 50) -- Centré en haut
@@ -21,20 +21,20 @@ title.Font = Enum.Font.GothamBold
 title.BackgroundTransparency = 1
 title.Parent = background
 
--- Animation du texte "SHADOW HUB" (changement de couleur et déplacement)
+-- Animation du texte "SHADOW HUB" (changement de couleur douce)
 local function animateTitle()
     local i = 0
     while true do
-        -- Animation de changement de couleur
-        title.TextColor3 = Color3.fromRGB(math.random(100, 255), math.random(0, 255), math.random(0, 255))
-        -- Animation de déplacement (gauche-droite)
-        title.Position = UDim2.new(0.5, -200 + math.sin(i) * 5, 0, 50)
-        i = i + 0.1
-        wait(0.05)
+        local r = math.sin(i) * 127 + 128
+        local g = math.sin(i + math.pi / 2) * 127 + 128
+        local b = math.sin(i + math.pi) * 127 + 128
+        title.TextColor3 = Color3.fromRGB(r, g, b)
+        i = i + 0.05
+        wait(0.1) -- Transition douce et fluide
     end
 end
 
--- Lancer l'animation du texte en arrière-plan
+-- Lancer l'animation du texte "SHADOW HUB"
 spawn(animateTitle)
 
 -- Créer le texte "MOD PROBLEME SERVEUR" en rouge
@@ -50,7 +50,7 @@ message.Parent = background
 message.TextWrapped = true
 message.TextYAlignment = Enum.TextYAlignment.Top
 
--- Créer le texte "Contacter le développeur" en bouton cliquable
+-- Créer le texte "Contacter le développeur" avec lien
 local contactText = Instance.new("TextButton")
 contactText.Size = UDim2.new(0, 500, 0, 30)
 contactText.Position = UDim2.new(0.5, -250, 0, 170) -- Centré sous le message
@@ -65,6 +65,7 @@ contactText.Parent = background
 
 -- Lorsqu'on clique sur le lien, ouvrir le navigateur
 contactText.MouseButton1Click:Connect(function()
+    -- Ouvrir le lien Telegram dans un nouvel onglet du navigateur
     game:GetService("GuiService"):OpenBrowserWindow("https://t.me/+94jtgXlufOA4MDU8")
 end)
 
@@ -81,9 +82,24 @@ openButton.Parent = background
 
 -- Ouvrir le lien dans le navigateur au clic
 openButton.MouseButton1Click:Connect(function()
+    -- Ouvrir le lien Telegram dans un nouvel onglet du navigateur
     game:GetService("GuiService"):OpenBrowserWindow("https://t.me/+94jtgXlufOA4MDU8")
 end)
 
+-- Ajouter une animation de fade-in sur toute la fenêtre (douce)
+background.BackgroundTransparency = 1
+for i = 0, 1, 0.05 do
+    background.BackgroundTransparency = i
+    wait(0.05)
+end
+
 -- Garder l'interface pendant 10 secondes avant de la fermer
 wait(10)
+
+-- Animation de fade-out avant de détruire
+for i = 1, 0, -0.05 do
+    background.BackgroundTransparency = i
+    wait(0.05)
+end
+
 screenGui:Destroy()
