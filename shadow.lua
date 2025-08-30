@@ -451,7 +451,6 @@ createButton("Vol", "flyEnabled", function(state)
     if state then
         humanoid.PlatformStand = true
 
-        -- Création des objets de vol
         local bv = Instance.new("BodyVelocity", hrp)
         bv.Name = "FlyVelocity"
         bv.MaxForce = Vector3.new(1e5, 1e5, 1e5)
@@ -476,34 +475,27 @@ createButton("Vol", "flyEnabled", function(state)
                 return
             end
 
-            -- Récupérer la direction du joystick
+            -- Récupère la direction du joystick
             local moveDir = humanoid.MoveDirection
             local camCF = camera.CFrame
 
-            -- Si le joystick n'est pas en mouvement, le personnage ne se déplace pas
-            if moveDir.Magnitude == 0 then
-                bv.Velocity = Vector3.zero  -- Arrêt immédiat si aucun mouvement
-                return
+            local targetVelocity
+            if moveDir.Magnitude > 0 then
+                -- Déplace le personnage dans la direction de la caméra en fonction du joystick
+                local horizontalMove = (camCF.LookVector * moveDir.Z + camCF.RightVector * moveDir.X)
+                -- Ici on conserve l'orientation de la caméra tout en appliquant la direction du joystick
+                targetVelocity = horizontalMove.Unit * speed
+            else
+                targetVelocity = Vector3.new(0, 0, 0)
             end
 
-            -- Calculer la direction du mouvement basé sur la caméra (horizontal)
-            local horizontalMove = (camCF.LookVector * moveDir.Z + camCF.RightVector * moveDir.X)
-
-            -- Ajouter la composante verticale en fonction de l'inclinaison de la caméra
-            local verticalMove = camCF.UpVector * moveDir.Y  -- Cela gère le mouvement en haut/bas
-
-            -- Combiner les deux vecteurs pour obtenir la direction finale du mouvement
-            local targetVelocity = horizontalMove + verticalMove
-            targetVelocity = targetVelocity.Unit * speed  -- Normalisation et application de la vitesse
-
-            -- Appliquer le mouvement de manière lissée pour plus de fluidité
+            -- Lissage de la vitesse pour un arrêt progressif
             bv.Velocity = bv.Velocity:Lerp(targetVelocity, smoothing)
 
-            -- Garder le personnage orienté selon la direction de la caméra
+            -- Garde l'orientation du personnage par rapport à la caméra
             bg.CFrame = CFrame.new(hrp.Position, hrp.Position + camCF.LookVector)
         end)
     else
-        -- Si le vol est désactivé, on nettoie
         local oldBV = hrp:FindFirstChild("FlyVelocity")
         if oldBV then oldBV:Destroy() end
         local oldBG = hrp:FindFirstChild("FlyGyro")
