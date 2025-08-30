@@ -586,7 +586,9 @@ submitBtn.MouseButton1Click:Connect(function()
         passPage:Destroy()
         openFrame(frame)
     else
-        passBox.Text = ""
-        passBox.PlaceholderText = "Mot de passe incorrect"
+        passBox.Text = ""                       -- vide le champ
+        placeholder.Text = "Mot de passe incorrect"  -- affiche le message sur le placeholder
+        placeholder.TextColor3 = Color3.fromRGB(255,0,0) -- rouge
+        placeholder.Visible = true              -- assure qu’il est visible
     end
 end)
