@@ -475,26 +475,22 @@ createButton("Vol","flyEnabled",function(state)
                 return
             end
 
-            -- On récupère la direction de la caméra
             local moveDir = humanoid.MoveDirection
-            local camCF = camera.CFrame
+            local camCF = camera.CFrame  -- Récupérer la position de la caméra
 
-            -- On calcule la direction du vol selon la caméra et le joystick
-            local targetVelocity = Vector3.zero
+            local targetVelocity
             if moveDir.Magnitude > 0 then
-                -- Mouvement horizontal (avant, arrière, gauche, droite)
-                local horizontalMove = (camCF.LookVector * moveDir.Z + camCF.RightVector * moveDir.X)
-                targetVelocity = horizontalMove.Unit * speed
+                -- On utilise les directions locales pour bouger, pas affecté par la caméra
+                local moveDirection = Vector3.new(moveDir.X, 0, moveDir.Z).unit  -- Mouvement horizontal dans l'espace local
+                targetVelocity = moveDirection * speed
+            else
+                targetVelocity = Vector3.new(0, 0, 0)
             end
 
-            -- On gère le mouvement vertical (haut, bas) avec la caméra
-            local camUp = camCF.UpVector
-            local verticalMove = moveDir.Y * speed
+            -- Lissage de la vitesse pour un arrêt progressif
+            bv.Velocity = bv.Velocity:Lerp(targetVelocity, smoothing)
 
-            -- Appliquer la vitesse en fonction de l'input et de la caméra
-            bv.Velocity = bv.Velocity:Lerp(targetVelocity + camUp * verticalMove, smoothing)
-
-            -- On maintient l'orientation du personnage selon la caméra
+            -- Garder l'orientation du personnage selon la caméra
             bg.CFrame = CFrame.new(hrp.Position, hrp.Position + camCF.LookVector)
         end)
     else
