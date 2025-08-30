@@ -442,7 +442,10 @@ submitBtn.MouseButton1Click:Connect(function()
             wait(0.03)
         end
         passPage:Destroy()
-        openFrame(frame)
+        wait(0.1) -- petit délai pour s'assurer que GUI est prêt
+        if frame and player:FindFirstChild("PlayerGui") then
+            openFrame(frame)
+        end
     else
         passBox.Text = ""
         passBox.PlaceholderText = "Mot de passe incorrect"
