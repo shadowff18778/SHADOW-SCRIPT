@@ -443,7 +443,7 @@ end
 -- =========================
 -- FONCTIONS CHEATS
 -- =========================
-createButton("Vol","flyEnabled",function(state)
+createButton("Vol", "flyEnabled", function(state)
     local hrp = character:FindFirstChild("HumanoidRootPart")
     local humanoid = character:FindFirstChildOfClass("Humanoid")
     if not hrp or not humanoid then return end
@@ -454,12 +454,12 @@ createButton("Vol","flyEnabled",function(state)
         -- Création des objets de vol
         local bv = Instance.new("BodyVelocity", hrp)
         bv.Name = "FlyVelocity"
-        bv.MaxForce = Vector3.new(1e5,1e5,1e5)
+        bv.MaxForce = Vector3.new(1e5, 1e5, 1e5)
         bv.Velocity = Vector3.zero
 
         local bg = Instance.new("BodyGyro", hrp)
         bg.Name = "FlyGyro"
-        bg.MaxTorque = Vector3.new(1e5,1e5,1e5)
+        bg.MaxTorque = Vector3.new(1e5, 1e5, 1e5)
         bg.P = 1e4
         bg.CFrame = hrp.CFrame
 
@@ -480,12 +480,21 @@ createButton("Vol","flyEnabled",function(state)
             local moveDir = humanoid.MoveDirection
             local camCF = camera.CFrame
 
-            -- Calculer la direction du mouvement basé sur la caméra
-            local targetVelocity = Vector3.zero
-            if moveDir.Magnitude > 0 then
-                local horizontalMove = (camCF.LookVector * moveDir.Z + camCF.RightVector * moveDir.X)
-                targetVelocity = horizontalMove.Unit * speed
+            -- Si le joystick n'est pas en mouvement, le personnage ne se déplace pas
+            if moveDir.Magnitude == 0 then
+                bv.Velocity = Vector3.zero  -- Arrêt immédiat si aucun mouvement
+                return
             end
+
+            -- Calculer la direction du mouvement basé sur la caméra (horizontal)
+            local horizontalMove = (camCF.LookVector * moveDir.Z + camCF.RightVector * moveDir.X)
+
+            -- Ajouter la composante verticale en fonction de l'inclinaison de la caméra
+            local verticalMove = camCF.UpVector * moveDir.Y  -- Cela gère le mouvement en haut/bas
+
+            -- Combiner les deux vecteurs pour obtenir la direction finale du mouvement
+            local targetVelocity = horizontalMove + verticalMove
+            targetVelocity = targetVelocity.Unit * speed  -- Normalisation et application de la vitesse
 
             -- Appliquer le mouvement de manière lissée pour plus de fluidité
             bv.Velocity = bv.Velocity:Lerp(targetVelocity, smoothing)
@@ -503,6 +512,7 @@ createButton("Vol","flyEnabled",function(state)
         humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
     end
 end)
+
 
 
 
