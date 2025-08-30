@@ -1,16 +1,13 @@
-
 game.StarterGui:SetCore("SendNotification", {
     Title = "SHADOW HUB",
     Text = "Prépare-toi à dominer 😈",
     Duration = 5
 })
 
--- Variables de base
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local camera = workspace.CurrentCamera
 local RS = game:GetService("RunService")
-local TS = game:GetService("TweenService") -- Ajout de TweenService pour les animations
 
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "ShadowHub"
@@ -45,36 +42,6 @@ passBox.BackgroundColor3 = Color3.fromRGB(45,45,45)
 passBox.Font = Enum.Font.Gotham
 passBox.TextSize = 20
 Instance.new("UICorner", passBox).CornerRadius = UDim.new(0,10)
-
--- Ajout du contour (UIStroke) pour l'effet de glow
-local passStroke = Instance.new("UIStroke", passBox)
-passStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-passStroke.Color = Color3.fromRGB(255, 50, 50)
-passStroke.Transparency = 1 -- Commence transparent
-passStroke.Thickness = 2
-
--- Ajout d'une ombre portée pour un effet 3D subtil
-local passShadow = Instance.new("UIStroke", passBox)
-passShadow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-passShadow.Color = Color3.fromRGB(0, 0, 0)
-passShadow.Transparency = 0.5
-passShadow.Thickness = 1
-passShadow.LineJoinMode = Enum.LineJoinMode.Round
-
--- Animation du glow lorsque la boîte de texte est cliquée
-passBox.Focused:Connect(function()
-    local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-    local properties = {Transparency = 0, Thickness = 2}
-    local glowTween = TS:Create(passStroke, tweenInfo, properties)
-    glowTween:Play()
-end)
-
-passBox.FocusLost:Connect(function()
-    local tweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-    local properties = {Transparency = 1, Thickness = 1}
-    local glowTween = TS:Create(passStroke, tweenInfo, properties)
-    glowTween:Play()
-end)
 
 local submitBtn = Instance.new("TextButton", passPage)
 submitBtn.Size = UDim2.new(0,140,0,40)
@@ -118,7 +85,7 @@ local function openFrame(f)
     f.Size = UDim2.new(0,0,0,0)
     for i=0,1,0.05 do
         f.Size = UDim2.new(0,400*i,0,300*i)
-        task.wait(0.01)
+        wait(0.01)
     end
 end
 
@@ -126,7 +93,7 @@ end
 local function closeFrame(f)
     for i=1,0,-0.05 do
         f.Size = UDim2.new(0,400*i,0,300*i)
-        task.wait(0.01)
+        wait(0.01)
     end
     f.Visible = false
 end
@@ -283,10 +250,10 @@ end
 infoBtn.MouseButton1Click:Connect(function()
     settingsPage.Visible = false
     infoPage.Visible = true
-    task.spawn(function()
+    spawn(function()
         while infoPage.Visible do
             createPlayerButtons()
-            task.wait(1)
+            wait(1)
         end
     end)
 end)
@@ -431,11 +398,11 @@ signature.TextColor3 = Color3.fromRGB(255,0,0)
 signature.BackgroundTransparency = 1
 signature.TextScaled = true
 
-task.spawn(function()
+spawn(function()
     while true do
         for i=0,1,0.01 do
             signature.TextColor3 = Color3.fromHSV(i,1,1)
-            task.wait(0.02)
+            wait(0.02)
         end
     end
 end)
@@ -496,8 +463,8 @@ createButton("Vol","flyEnabled",function(state)
         conn = RS.Heartbeat:Connect(function()
             if not _G.flyEnabled then
                 conn:Disconnect()
-                if bv and bv.Parent == hrp then bv:Destroy() end
-                if bg and bg.Parent == hrp then bg:Destroy() end
+                bv:Destroy()
+                bg:Destroy()
                 humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
                 return
             end
@@ -533,41 +500,25 @@ createButton("Saut","jumpEnabled",function(state)
 end)
 
 -- Noclip
--- J'ai corrigé le Noclip pour éviter de créer plusieurs connexions, ce qui peut causer des problèmes de performance.
-_G.noclip_conn = nil -- Variable pour stocker la connexion
 createButton("Noclip","noclip",function(state)
-    -- Déconnexion de l'ancienne connexion si elle existe
-    if _G.noclip_conn then
-        _G.noclip_conn:Disconnect()
-        _G.noclip_conn = nil
-    end
-
-    if state then
-        -- Connexion de la nouvelle fonction si le Noclip est activé
-        _G.noclip_conn = RS.Stepped:Connect(function()
+    RS.Stepped:Connect(function()
+        if _G.noclip then
             for _,part in pairs(character:GetDescendants()) do
                 if part:IsA("BasePart") then
                     part.CanCollide = false
                 end
             end
-        end)
-    else
-        -- S'assurer que les collisions sont réactivées pour toutes les parties
-        for _,part in pairs(character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = true
-            end
         end
-    end
+    end)
 end)
 
 -- Animation rouge ↔ bleu titre et bouton SHADOW
 local function animateColor(textLabel)
-    task.spawn(function()
+    spawn(function()
         while true do
             for i=0,1,0.01 do
                 textLabel.TextColor3 = Color3.fromHSV(i,1,1)
-                task.wait(0.01)
+                wait(0.03)
             end
         end
     end)
@@ -585,18 +536,12 @@ submitBtn.MouseButton1Click:Connect(function()
         for i=1,100 do
             loadingBar.Size = UDim2.new(i/100,0,1,0)
             loadingBar.BackgroundColor3 = Color3.fromHSV(i/100,1,1)
-            task.wait(0.03)
+            wait(0.03)
         end
         passPage:Destroy()
         openFrame(frame)
     else
         passBox.Text = ""
         passBox.PlaceholderText = "Mot de passe incorrect"
-        -- Ajout d'une animation de secousse pour l'erreur
-        local originalPos = passBox.Position
-        local shakeTweenInfo = TweenInfo.new(0.05, Enum.EasingStyle.Sine, Enum.EasingDirection.Out, 4, true)
-        local shakeProperties = {Position = originalPos + UDim2.new(0, 5, 0, 0)}
-        local shakeTween = TS:Create(passBox, shakeTweenInfo, shakeProperties)
-        shakeTween:Play()
     end
 end)
