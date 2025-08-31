@@ -2,7 +2,7 @@
 
 -- Configuration
 local disappearTime = 10 -- secondes avant que l'UI disparaisse
-local targetHour = 10 -- heure cible (10h du matin)
+local targetHour = 13 -- heure cible (13h = 1h de l’après-midi)
 
 -- Création du ScreenGui
 local player = game.Players.LocalPlayer
