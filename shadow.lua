@@ -1,5 +1,3 @@
-
-
 game.StarterGui:SetCore("SendNotification", {
     Title = "😈SHADOW HUB😈",
     Text = "chargement... 😈",
@@ -441,6 +439,18 @@ reopenBtn.MouseButton1Click:Connect(function()
     reopenBtn.Visible = false
 end)
 
+-- NOUVEAU : Compte à rebours avant 21h00
+local countdownLabel = Instance.new("TextLabel", frame)
+countdownLabel.Size = UDim2.new(1,0,0,15)
+countdownLabel.Position = UDim2.new(0,0,1,-35) -- Positionné juste au-dessus de la signature
+countdownLabel.Text = "Prochain événement à 21h00"
+countdownLabel.Font = Enum.Font.GothamBold
+countdownLabel.TextSize = 12
+countdownLabel.TextColor3 = Color3.fromRGB(255,255,255)
+countdownLabel.BackgroundTransparency = 1
+countdownLabel.TextScaled = false
+countdownLabel.TextXAlignment = Enum.TextXAlignment.Center
+
 local signature = Instance.new("TextLabel", frame)
 signature.Size = UDim2.new(1,0,0,15)
 signature.Position = UDim2.new(0,0,1,-20)
@@ -870,6 +880,45 @@ local function animateColor(textLabel)
         end
     end)
 end
+
+-- Tâches de mise à jour en arrière-plan
+spawn(function()
+    while wait(1) do
+        local now = os.date("!*t", os.time())
+        local targetHour = 21
+        local targetTime
+        
+        -- Si l'heure actuelle est après 21h00, le prochain événement est demain
+        if now.hour >= targetHour then
+            targetTime = os.time({
+                year = now.year,
+                month = now.month,
+                day = now.day + 1,
+                hour = targetHour,
+                min = 0,
+                sec = 0
+            })
+        else
+            -- Sinon, c'est pour aujourd'hui
+            targetTime = os.time({
+                year = now.year,
+                month = now.month,
+                day = now.day,
+                hour = targetHour,
+                min = 0,
+                sec = 0
+            })
+        end
+        
+        local timeRemaining = targetTime - os.time()
+        
+        local hours = math.floor(timeRemaining / 3600)
+        local minutes = math.floor((timeRemaining % 3600) / 60)
+        local seconds = timeRemaining % 60
+        
+        countdownLabel.Text = string.format("Temps restant avant 21h00 : %02d:%02d:%02d", hours, minutes, seconds)
+    end
+end)
 
 animateColor(title)
 animateColor(reopenBtn)
